@@ -1,0 +1,13 @@
+{
+"type": "FeatureCollection",
+"name": "Sampling_Monitoring_P",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Place": "RVC Masjid", "Type": "(Sampling)", "Latitude": 34.065558, "Longitude": 72.66085, "Name": "DW 01" }, "geometry": { "type": "Point", "coordinates": [ 72.66085, 34.065558 ] } },
+{ "type": "Feature", "properties": { "Place": "Swabi University Old Campus", "Type": "(Sampling)", "Latitude": 34.057283, "Longitude": 72.409019, "Name": "DW 02" }, "geometry": { "type": "Point", "coordinates": [ 72.409019, 34.057283 ] } },
+{ "type": "Feature", "properties": { "Place": "Near Tail End Point", "Type": "(Sampling)", "Latitude": 33.9496, "Longitude": 72.242153, "Name": "DW 03" }, "geometry": { "type": "Point", "coordinates": [ 72.242153, 33.9496 ] } },
+{ "type": "Feature", "properties": { "Place": "Head Point-Toppi", "Type": "(Monitoring)", "Latitude": 34.06625, "Longitude": 72.65951, "Name": "AA & N 01" }, "geometry": { "type": "Point", "coordinates": [ 72.65951, 34.06625 ] } },
+{ "type": "Feature", "properties": { "Place": "Mid-Point Amber Interchange", "Type": "(Monitoring)", "Latitude": 34.05729, "Longitude": 72.40821, "Name": "AA & N 02" }, "geometry": { "type": "Point", "coordinates": [ 72.40821, 34.05729 ] } },
+{ "type": "Feature", "properties": { "Place": "Tail Point - Jhangera", "Type": "(Monitoring)", "Latitude": 33.94953, "Longitude": 72.24195, "Name": "AA & N 03" }, "geometry": { "type": "Point", "coordinates": [ 72.24195, 33.94953 ] } }
+]
+}
