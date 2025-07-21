@@ -1,0 +1,363 @@
+
+.leaflet-interactive:focus {
+  outline: none !important;
+}
+
+
+/* Hide Leaflet’s default close (X) button */
+.leaflet-popup-close-button {
+  display: none !important;
+}
+
+/* Popup container & tip width fix */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip-container {
+  min-width: 260px;
+}
+
+/* Leaflet popup container */
+.leaflet-popup-content-wrapper {
+  border: 2px solid blue;
+  border-radius: 5px;
+  padding: 0;
+}
+
+/* Main Leaflet popup content */
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+  width: 260px !important;
+  max-width: 260px !important;
+  overflow: hidden;
+}
+
+/* Custom popup container inside Leaflet */
+.custom-popup {
+  padding: 0 !important;
+  margin: 0;
+  width: 260px;
+  max-height: 250px;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+/* Popup header with title and close button */
+.popup-header {
+  background-color: #0539b4;
+  color: white;
+  padding: 6px 10px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #ccc;
+  height: 30px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Close (✖) button inside popup header */
+.popup-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+/* Scrollable popup body with attribute table */
+.popup-body {
+  padding: 10px;
+  padding-top: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* Attribute table styling */
+.popup-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: fixed;
+}
+
+.popup-table th,
+.popup-table td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+/* Sticky header for table */
+.popup-table th {
+  background-color: #f1f1f1;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+
+
+
+
+
+
+body, h1, label {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+:root {
+  --header-height: 100px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e3a8a;
+  padding: 0 30px;
+  height: var(--header-height);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+  width: 80px;
+  background-color: white;
+  padding: 5px;
+  border-radius: 6px;
+}
+
+.left-logo { width: 100px; margin-left: -20px; }
+.right-logo { margin-right: -20px; }
+
+.title-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.dashboard-title {
+  font-size: 1.8rem;
+  animation: colorCycle 60s infinite ease-in-out;
+}
+
+@keyframes colorCycle {
+  0% { color: #03ccfe; }
+  33% { color: #f9fafb; }
+  66% { color: #05f73e; }
+  100% { color: #e1f905; }
+}
+
+.background-image {
+  width: 700px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.main-container {
+  display: flex;
+  height: calc(100vh - var(--header-height));
+}
+
+.left-panel {
+  background-color: #edf3f4;
+  padding: 10px;
+  width: 280px;
+  overflow-y: auto;
+  border: 3px solid #4501ff;
+  box-sizing: border-box;
+}
+
+.tab-panel .tab-header {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  border: 2px solid #f83600;
+  margin-bottom: 5px;
+  border-radius: 8px;
+}
+
+.tab-panel .tab-content {
+  display: none;
+  padding: 10px;
+  background: white;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 15.5px;
+}
+
+.tab-panel .tab-content label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.tab-panel .tab-content input {
+  margin-right: 5px;
+}
+
+.tab-panel .tab-content.open {
+  display: block;
+}
+
+.map-container {
+  flex-grow: 1;
+  position: relative;
+  background-color: #e5e7eb;
+}
+
+.tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Align label and arrow */
+  background-color: #1e3a8a;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  border: 2px solid #f83600;
+  margin-bottom: 5px;
+  border-radius: 8px; /* Rounded corners for tab header */
+}
+
+.arrow {
+  margin-left: 10px;
+  transition: transform 0.2s ease-in-out;
+}
+
+
+.legend-popup {
+  position: absolute;
+  bottom: 20px;
+  right: 0;
+  width: 250px;
+  max-height: 200px;
+  background: white;
+  border: 2px solid blue;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  border-radius: 6px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #0539b4;
+  color: white;
+  padding: 6px 10px;
+  font-weight: bold;
+  font-size: 14px;
+  border-bottom: 2px solid #ccc;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+
+.legend-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.legend-content {
+  margin-top: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+
+.legend-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.legend-table th {
+  border: 1px solid #ccc;
+  padding: 4px 6px;
+  text-align: left;
+  font-size: 13px;
+  background-color: #f1f1f1;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.legend-table td {
+  border: 1px solid #ccc;
+  padding: 4px 6px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.legend-color-box {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border: 1px solid #333;
+}
+
+
+.legend-scroll {
+  overflow-y: auto;
+  max-height: 160px; /* leave space for header */
+}
+
+
+
+.zoom-btn {
+  display: inline-block;
+  margin: 6px 0;
+  padding: 6px 12px;
+  font-size: 12px;
+  background-color: #2563eb; /* blue-600 */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.zoom-btn:hover {
+  background-color: #30d81d; /* blue-700 */
+}
+
+.label-toggle-btn {
+  background-color: #1f2937;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+.label-toggle-btn:hover {
+  background-color: #0df940;
+}
+
+
+
