@@ -18,36 +18,69 @@ document.addEventListener("DOMContentLoaded", () => {
         attribution: "Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)",
         maxZoom: 20
       }
-    )
+    ),
+    topographic: L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+    {
+      attribution: "© Esri, HERE, Garmin, FAO, NOAA, USGS, EPA, NPS"
+    }
+    ),
+
+    natgeo: L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: "© National Geographic, Esri, DeLorme, HERE, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, increment P Corp.",
+        maxZoom: 20
+      }
+    ),
+    hybrid: {
+      imagery: L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { attribution: "© Esri, Maxar, Earthstar Geographics" }
+      ),
+      transportation: L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+        { attribution: "© Esri" }
+      ),
+      labels: L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+        { attribution: "© Esri" }
+      )
+    }
   };
 
   let currentBaseLayer = basemaps.map;
+  let isHybridLabelsOn = true;
   currentBaseLayer.addTo(map);
 
   const layers = {};
+  
   const symbologyField = {
-    p1: "Name", p2: "Name", p3: "Name", p4: "ROW",
-    p5: "Label", p6: "Name", p7: "Name", p8: "Name",
-    p9: "Name", p10: "Tehsil", p11: "Mauza", p12: "Label",
-    p13: "Type", p14: "Name", p15: "Name", p16: "Category",
-    m1: "Name", m2: "Name", m3: "Name", m4: "ROW",
-    m5: "Label", m6: "Name", m7: "Name", m8: "Name",
-    m9: "Name", m10: "Name", m11: "Name", m12: "Label",
-    m13: "Type", m14: "Type", m15: "Name", m16: "Name",
-    m17: "Category", m18: "category", m19: "Type", m20: "Type"
+  p1: "Name", p2: "Name", p3: "Name", p4: "ROW",
+  p5: "Label", p6: "Name", p7: "Name", p8: "Name",
+  p9: "Name", p10: "Tehsil", p11: "Mauza", p12: "Label",
+  p13: "Type", p14: "Name", p15: "Name",p16:"Category",
+
+  m1: "Name", m2: "Name", m3: "Name", m4: "ROW",
+  m5: "Label", m6: "NAME", m7: "Name", m8: "Name",
+  m9: "Name", m10: "Name", m11: "Name", m12: "Label",
+  m13: "Type", m14: "Type", m15: "Name", m16: "Name",
+  m17: "Category", m18: "category", m19: "Type", m20: "Type"
   };
 
   const labelField = {
-    p1: "Name", p2: "Name", p3: "Label", p4: "ROW",
-    p5: "Label", p6: "Outlet", p7: "Outlet", p8: "Outlet",
-    p9: "Outlet", p10: "Name", p11: "Khasra_No", p12: "Label",
-    p13: "Name", p14: "Name", p15: "Name", p16: "Landuse",
-    m1: "Name", m2: "Name", m3: "Label", m4: "ROW",
-    m5: "Label", m6: "Outlet", m7: "Outlet", m8: "Name",
-    m9: "Outlet", m10: "Outlet", m11: "Name", m12: "Label",
-    m13: "Name", m14: "Name", m15: "Name", m16: "Name",
-    m17: "Landuse", m18: "category", m19: "Type", m20: "Name"
+  p1: "Name", p2: "Name", p3: "Label", p4: "ROW",
+  p5: "Label", p6: "Outlet", p7: "Outlet", p8: "Outlet",
+  p9: "Outlet", p10: "Name", p11: "Khasra_No", p12: "Label",
+  p13: "Name", p14: "Name",  p15: "Name",p16:"Landuse",
+
+  m1: "Name", m2: "Name", m3: "Label", m4: "ROW",
+  m5: "Label", m6: "Outlet", m7: "Outlet", m8: "Name",
+  m9: "Outlet", m10: "Outlet", m11: "Name", m12: "Label",
+  m13: "Name", m14: "Name", m15: "Name", m16: "Name",
+  m17: "Landuse", m18: "category", m19: "Type", m20: "Name"
   };
+
 
   const baseURL1 = "https://raw.githubusercontent.com/prfcgis/portal/refs/heads/main/SHP_PMC/";
   const baseURL2 = "https://raw.githubusercontent.com/prfcgis/portal/refs/heads/main/SHP_Mulkhow/";
@@ -69,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     p14: `${baseURL1}Drain_P.geojson`,
     p15: `${baseURL1}Villages_P.geojson`,
     p16: `${baseURL1}Landuse_P.geojson`,
+
     m1: `${baseURL2}Project_boundary_M.geojson`,
     m2: `${baseURL2}IDS_M.geojson`,
     m3: `${baseURL2}RD_M.geojson`,
@@ -106,20 +140,57 @@ document.addEventListener("DOMContentLoaded", () => {
     return colorMap[value];
   };
 
-  // Image configurations for p16 and m17
   const layerImages = {
     p16: {
-      src: "https://raw.githubusercontent.com/prfcgis/portal/refs/heads/main/images/chart_p.png", // Replace with actual image URL
-      link: "PMC.html", // Replace with actual link
+      src: "https://raw.githubusercontent.com/prfcgis/portal/refs/heads/main/images/chart_p.png",
+      link: "PMC.html",
     },
     m17: {
-      src: "https://raw.githubusercontent.com/prfcgis/portal/refs/heads/main/images/chart_m.png", // Replace with actual image URL
-      link: "Mulkhow.html", // Replace with actual link
+      src: "https://raw.githubusercontent.com/prfcgis/portal/refs/heads/main/images/chart_m.png",
+      link: "Mulkhow.html",
     }
   };
 
-
   let currentImageControls = {};
+
+  // Custom Leaflet control for hybrid labels and transportation toggle
+  const HybridLabelsControl = L.Control.extend({
+    options: { position: "topright" },
+    onAdd: function (map) {
+      const div = L.DomUtil.create("div", "hybrid-labels-control leaflet-control");
+      div.innerHTML = `
+        <label class="toggle-switch" aria-label="Toggle hybrid basemap labels and features">
+          <input type="checkbox" id="hybrid-labels-toggle" checked>
+          <span class="slider"></span>
+          <span class="toggle-label">Labels</span>
+        </label>
+      `;
+      L.DomEvent.disableClickPropagation(div);
+      // Attach toggle event listener when control is added
+      const toggle = div.querySelector("#hybrid-labels-toggle");
+      if (toggle) {
+        toggle.checked = isHybridLabelsOn;
+        toggle.addEventListener("change", () => {
+          isHybridLabelsOn = toggle.checked;
+          if (currentBaseLayer === basemaps.hybrid.imagery) {
+            if (isHybridLabelsOn) {
+              basemaps.hybrid.transportation.addTo(map);
+              basemaps.hybrid.labels.addTo(map);
+            } else {
+              map.removeLayer(basemaps.hybrid.transportation);
+              map.removeLayer(basemaps.hybrid.labels);
+            }
+          }
+        });
+      }
+      return div;
+    },
+    onRemove: function () {
+      // noop
+    }
+  });
+
+  const hybridLabelsControl = new HybridLabelsControl();
 
   Object.entries(layerFiles).forEach(([key, url]) => {
     fetch(url)
@@ -147,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let content = `
               <div class="popup-header">
                 <strong>Feature Information</strong>
-                <button class="popup-close-btn" onclick="closeLeafletPopup()">✖</button>
+                <button class="popup-close-btn" title="Close popup">✖</button>
               </div>
               <div class="popup-body">
                 <table class="popup-table">
@@ -168,12 +239,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             featureLayer.on("click", () => {
-              // Reset all layers to default style
+              // Reset styles of all layers
               Object.values(layers).forEach(l => {
                 if (map.hasLayer(l)) {
-                  l.eachLayer(fl => {
-                    l.resetStyle(fl);
-                  });
+                  l.resetStyle();
                 }
               });
 
@@ -192,7 +261,13 @@ document.addEventListener("DOMContentLoaded", () => {
               });
 
               featureLayer.bringToFront();
-              featureLayer.bindPopup(content, { autoPan: false, className: "custom-popup" }).openPopup();
+
+              try {
+                featureLayer.bindPopup(content, { autoPan: true, className: "custom-popup" }).openPopup();
+                console.log("Popup opened for feature");
+              } catch (error) {
+                console.error("Error opening popup:", error);
+              }
             });
           }
         });
@@ -203,12 +278,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (checkbox) {
           checkbox.addEventListener("change", () => {
             const group = key.startsWith("m") ? "mulkhow" : "pmc";
-            const labelToggle = document.querySelector(`.label-toggle[data-group="${group}"]`);
-
+          const labelToggle = document.querySelector(`.label-toggle-btn[data-group="${group}"]`);
+          
             if (checkbox.checked) {
               layer.addTo(map);
 
-              if (labelToggle && labelToggle.checked) {
+              if (labelToggle && labelToggle.dataset.state === "on") {
                 layer.eachLayer((fl) => {
                   const tooltip = fl.getTooltip();
                   if (tooltip) fl.openTooltip();
@@ -219,13 +294,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 map.fitBounds(layer.getBounds(), { padding: [50, 50] });
               }
 
-              // Show image for p16 or m17 when layer is checked
               if (key === "p16" || key === "m17") {
                 const imageInfo = layerImages[key];
                 const imageControl = L.control({ position: "bottomleft" });
                 imageControl.onAdd = function () {
                   const div = L.DomUtil.create("div", "image-control");
-                  div.innerHTML = `<a href="${imageInfo.link}" target="_blank"><img src="${imageInfo.src}" style="width:350px;height:200px;border:2px solid #000;" alt="Layer Image"></a>`;
+                  div.innerHTML = `
+                  <a href="${imageInfo.link}" target="_blank" style="display:block; margin-bottom:5px;">
+                    <img src="${imageInfo.src}" style="width:100%;max-width:300px;height:auto;border:2px solid #00008B;" alt="Layer Image">
+                  </a>`;
+
                   return div;
                 };
                 imageControl.addTo(map);
@@ -250,17 +328,38 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  // Clear selection and images when clicking on empty map
+  // Use flag to ignore map click right after feature click
+  let ignoreMapClick = false;
+
+  // Delegate popup close button clicks to map container
+  document.getElementById('map').addEventListener('click', (e) => {
+    if (e.target.classList.contains('popup-close-btn')) {
+      // Close the currently open popup using Leaflet API
+      map.closePopup();
+      e.stopPropagation();
+    }
+  });
+
   map.on("click", (e) => {
-    if (!e.originalEvent.target.closest(".leaflet-interactive")) {
+    if (ignoreMapClick) {
+      // Ignore this click because it just followed a feature popup open
+      ignoreMapClick = false;
+      return;
+    }
+
+    const target = e.originalEvent.target;
+    if (
+      !target.closest(".leaflet-interactive") &&
+      !target.closest(".leaflet-popup") &&
+      !target.closest(".leaflet-tooltip") &&
+      !target.closest(".leaflet-control")
+    ) {
       Object.values(layers).forEach(l => {
         if (map.hasLayer(l)) {
-          l.eachLayer(fl => {
-            l.resetStyle(fl);
-          });
+          l.resetStyle();
         }
       });
-      closeLeafletPopup();
+      map.closePopup();
       Object.keys(currentImageControls).forEach(key => {
         map.removeControl(currentImageControls[key]);
       });
@@ -268,7 +367,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle label toggles
   document.querySelectorAll('.label-toggle-btn').forEach(button => {
     button.addEventListener('click', () => {
       const group = button.dataset.group;
@@ -296,16 +394,43 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Handle basemap switching
   document.querySelectorAll('input[name="basemap"]').forEach((input) => {
     input.addEventListener("change", function () {
-      if (currentBaseLayer) map.removeLayer(currentBaseLayer);
-      currentBaseLayer = basemaps[this.value];
-      currentBaseLayer.addTo(map);
+      // Remove current basemap and associated layers
+      if (currentBaseLayer) {
+        map.removeLayer(currentBaseLayer);
+        if (currentBaseLayer === basemaps.hybrid.imagery) {
+          map.removeLayer(basemaps.hybrid.transportation);
+          map.removeLayer(basemaps.hybrid.labels);
+          map.removeControl(hybridLabelsControl);
+        }
+      }
+      // Add new basemap
+      if (this.value === "hybrid") {
+        currentBaseLayer = basemaps.hybrid.imagery;
+        currentBaseLayer.addTo(map);
+        if (isHybridLabelsOn) {
+          basemaps.hybrid.transportation.addTo(map);
+          basemaps.hybrid.labels.addTo(map);
+        }
+        map.addControl(hybridLabelsControl);
+      } else {
+        currentBaseLayer = basemaps[this.value];
+        currentBaseLayer.addTo(map);
+        map.removeControl(hybridLabelsControl);
+      }
     });
   });
 
-  // Expand/collapse tab panels
+  // Initially add the toggle control and layers only if hybrid basemap is selected
+  if (currentBaseLayer === basemaps.hybrid.imagery) {
+    map.addControl(hybridLabelsControl);
+    if (isHybridLabelsOn) {
+      basemaps.hybrid.transportation.addTo(map);
+      basemaps.hybrid.labels.addTo(map);
+    }
+  }
+
   document.querySelectorAll(".tab-header").forEach((tab) => {
     tab.addEventListener("click", () => {
       const target = document.getElementById(tab.getAttribute("data-target"));
@@ -316,7 +441,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Leaflet Draw tools
   const drawnItems = new L.FeatureGroup().addTo(map);
   const drawControl = new L.Control.Draw({
     position: "topleft",
@@ -389,7 +513,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (let [label, info] of legendMap.entries()) {
       const row = document.createElement("tr");
-      const displayValue = Number.isInteger(info.total) ? info.total : `${info.total} km`;
+      const displayValue = Number.isInteger(info.total) ? info.total : `${parseFloat(info.total).toFixed(2)} km`;
       row.innerHTML = `
         <td><span class="legend-color-box" style="background:${info.color}"></span> ${label}</td>
         <td>${displayValue}</td>
@@ -410,8 +534,49 @@ document.addEventListener("DOMContentLoaded", () => {
     map.setView([36.28143319384586, 72.20742463946648], 12);
   });
 
-  window.closeLeafletPopup = function () {
-    const popups = document.querySelectorAll(".leaflet-popup");
-    popups.forEach(p => p.remove());
-  };
+  window.addEventListener("resize", () => {
+    map.invalidateSize();
+  });
+
+  map.invalidateSize();
+
+  const sidebarToggle = document.createElement("button");
+  sidebarToggle.className = "sidebar-toggle-btn";
+  sidebarToggle.textContent = "☰";
+  sidebarToggle.style.cssText = `
+    display: none;
+    position: fixed;
+    top: calc(var(--header-height) + 10px);
+    left: 10px;
+    z-index: 1000;
+    padding: 8px 12px;
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  `;
+  document.body.appendChild(sidebarToggle);
+
+  sidebarToggle.addEventListener("click", () => {
+    const leftPanel = document.querySelector(".left-panel");
+    leftPanel.classList.toggle("hidden");
+    map.invalidateSize();
+  });
+
+  const mediaQuery = window.matchMedia("(max-width: 768px)");
+  function handleMediaQuery(mq) {
+    const sidebarToggle = document.querySelector(".sidebar-toggle-btn");
+    const leftPanel = document.querySelector(".left-panel");
+    if (mq.matches) {
+      sidebarToggle.style.display = "block";
+      leftPanel.classList.add("hidden");
+    } else {
+      sidebarToggle.style.display = "none";
+      leftPanel.classList.remove("hidden");
+    }
+    map.invalidateSize();
+  }
+  mediaQuery.addEventListener("change", handleMediaQuery);
+  handleMediaQuery(mediaQuery);
 });
