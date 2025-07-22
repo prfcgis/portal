@@ -429,3 +429,26 @@ body, h1, label {
   padding: 4px 8px; /* Optional: add spacing inside label */
   border-radius: 4px; /* Optional: rounded corners */
 }
+
+
+
+.custom-marker {
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* Style for feature label tooltips */
+.label-tooltip {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: rgba(30, 58, 138, 0.9); /* dark blue with transparency */
+  border: 1px solid #fff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.4);
+}

@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (labelAttr && props[labelAttr]) {
               featureLayer.bindTooltip(props[labelAttr], {
                 permanent: false,
-                direction: "center",
+                direction: "left",
                 className: "label-tooltip"
               });
             }
