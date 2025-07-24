@@ -56,8 +56,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const layers = {};
   let lastSelectedLayer = null;
-  let isHollow = false;
+  let lastSelectedFeature = null;
+  const hollowStates = { pmc: false, mulkhow: false };
+  const labelVisibilityStates = { pmc: false, mulkhow: false };
   const landuseLayers = ['p16', 'm17'];
+  const noLabelLayers = ["p9", "p16", "m17"]; // Layers that shouldn't have permanent labels
   
   const symbologyField = {
     p1: "Name", p2: "Name", p3: "Name", p4: "ROW",
@@ -191,22 +194,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const hybridLabelsControl = new HybridLabelsControl();
 
-  // Function to update layer style (hollow/fill)
+  // Function to update layer style (hollow/fill) - Only for polygons
   function updateLayerStyle(layerKey, hollow = false) {
     if (!layers[layerKey]) return;
     
     const symField = symbologyField[layerKey];
     layers[layerKey].eachLayer(layer => {
-      if (layer.feature.geometry.type === 'Point' || 
-          layer.feature.geometry.type === 'MultiPoint') {
-        layer.setStyle({
-          fillColor: hollow ? 'transparent' : getColorByValue(layer.feature.properties[symField]),
-          color: '#000',
-          weight: 1,
-          fillOpacity: hollow ? 0 : 0.8,
-          radius: 6
-        });
-      } else {
+      const featureType = layer.feature.geometry.type;
+      
+      // Only update polygons, leave points and lines unchanged
+      if (['Polygon', 'MultiPolygon'].includes(featureType)) {
         layer.setStyle({
           color: getColorByValue(layer.feature.properties[symField]),
           weight: 2,
@@ -318,19 +315,27 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((data) => {
         const symField = symbologyField[key];
         const labelAttr = labelField[key];
+        const group = key.startsWith('p') ? 'pmc' : 'mulkhow';
 
         const layer = L.geoJSON(data, {
-          style: (feature) => ({
-            color: getColorByValue(feature.properties[symField]),
-            weight: 2,
-            fillOpacity: 0.3
-          }),
+          style: (feature) => {
+            const featureType = feature.geometry.type;
+            const isPolygon = ['Polygon', 'MultiPolygon'].includes(featureType);
+            const isLine = ['LineString', 'MultiLineString'].includes(featureType);
+            
+            return {
+              color: getColorByValue(feature.properties[symField]),
+              weight: 2,
+              fillColor: isPolygon ? getColorByValue(feature.properties[symField]) : isLine ? 'transparent' : getColorByValue(feature.properties[symField]),
+              fillOpacity: isPolygon ? 0.3 : isLine ? 0 : 0.8
+            };
+          },
           pointToLayer: (feature, latlng) =>
             L.circleMarker(latlng, {
               radius: 6,
               fillColor: getColorByValue(feature.properties[symField]),
-              color: "#000",
-              weight: 1,
+              color: "#000", // Black outline for points
+              weight: 2, // Thicker outline
               fillOpacity: 0.8
             }),
           onEachFeature: (feature, featureLayer) => {
@@ -351,36 +356,101 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
 
             if (labelAttr && props[labelAttr]) {
-              featureLayer.bindTooltip(props[labelAttr], {
-                permanent: false,
-                direction: "left",
-                className: "label-tooltip"
-              });
+              // For noLabelLayers, only show tooltip on hover
+              if (noLabelLayers.includes(key)) {
+                featureLayer.bindTooltip(props[labelAttr], {
+                  permanent: false,
+                  direction: "left",
+                  className: "label-tooltip",
+                  interactive: true  // Make tooltip interactive so users can click on it
+                });
+              } else {
+                // For other layers, keep the existing label toggle functionality
+                featureLayer.bindTooltip(props[labelAttr], {
+                  permanent: true,
+                  direction: "left",
+                  className: "label-tooltip"
+                });
+                
+                // Store label visibility state
+                featureLayer._labelVisible = labelVisibilityStates[group];
+                if (labelVisibilityStates[group]) {
+                  featureLayer.openTooltip();
+                }
+              }
             }
 
             featureLayer.on("click", () => {
-              Object.values(layers).forEach(l => {
-                if (map.hasLayer(l)) {
-                  l.resetStyle();
+              // Reset all previously selected features
+              if (lastSelectedFeature) {
+                const lastLayerKey = lastSelectedLayer;
+                const lastGroup = lastLayerKey.startsWith('p') ? 'pmc' : 'mulkhow';
+                const lastIsHollow = hollowStates[lastGroup];
+                const lastFeatureType = lastSelectedFeature.feature.geometry.type;
+                
+                if (['Polygon', 'MultiPolygon'].includes(lastFeatureType)) {
+                  lastSelectedFeature.setStyle({
+                    color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastLayerKey]]),
+                    weight: 2,
+                    fillColor: lastIsHollow ? 'transparent' : getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastLayerKey]]),
+                    fillOpacity: lastIsHollow ? 0 : 0.3
+                  });
+                } else if (lastFeatureType === 'Point' || lastFeatureType === 'MultiPoint') {
+                  lastSelectedFeature.setStyle({
+                    fillColor: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastLayerKey]]),
+                    color: "#000", // Black outline
+                    weight: 2, // Thicker outline
+                    fillOpacity: 0.8,
+                    radius: 6
+                  });
+                } else { // For lines
+                  lastSelectedFeature.setStyle({
+                    color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastLayerKey]]),
+                    weight: 2,
+                    fillOpacity: 0
+                  });
                 }
-              });
+                
+                // Restore label visibility if it was visible
+                if (lastSelectedFeature._labelVisible && lastSelectedFeature.getTooltip()) {
+                  lastSelectedFeature.openTooltip();
+                }
+              }
 
-              const isCircleMarker = featureLayer instanceof L.CircleMarker;
+              const group = key.startsWith('p') ? 'pmc' : 'mulkhow';
+              const isHollow = hollowStates[group];
+              const featureType = feature.geometry.type;
+              const isPolygon = ['Polygon', 'MultiPolygon'].includes(featureType);
 
-              featureLayer.setStyle(isCircleMarker ? {
-                fillColor: "blue",
-                color: "#000",
-                weight: 2,
-                fillOpacity: 0.8,
-                radius: 8
-              } : {
+              const selectedStyle = {
                 color: "blue",
-                weight: 4,
-                fillOpacity: 0.6
-              });
+                weight: 4
+              };
 
+              if (isPolygon) {
+                selectedStyle.fillColor = isHollow ? "transparent" : "#00FFFF";
+                selectedStyle.fillOpacity = isHollow ? 0 : 0.6;
+              } else if (featureType === 'Point' || featureType === 'MultiPoint') {
+                selectedStyle.fillColor = "blue";
+                selectedStyle.color = "#000"; // Black outline
+                selectedStyle.weight = 2; // Thicker outline
+                selectedStyle.fillOpacity = 0.8;
+                selectedStyle.radius = 8;
+              } else {
+                selectedStyle.fillOpacity = 0;
+              }
+
+              featureLayer.setStyle(selectedStyle);
               featureLayer.bringToFront();
               featureLayer.bindPopup(content, { autoPan: true, className: "custom-popup" }).openPopup();
+              
+              // Maintain label visibility
+              if (featureLayer._labelVisible && featureLayer.getTooltip()) {
+                featureLayer.openTooltip();
+              }
+              
+              lastSelectedLayer = key;
+              lastSelectedFeature = featureLayer;
             });
           }
         });
@@ -394,38 +464,46 @@ document.addEventListener("DOMContentLoaded", () => {
             const labelToggle = document.querySelector(`.label-toggle-btn[data-group="${group}"]`);
             
             if (checkbox.checked) {
-              layer.addTo(map);
-              lastSelectedLayer = key;
-              updateLayerStyle(key, isHollow);
+                layer.addTo(map);
+                lastSelectedLayer = key;
 
-              if (labelToggle && labelToggle.dataset.state === "on") {
-                layer.eachLayer((fl) => {
-                  const tooltip = fl.getTooltip();
-                  if (tooltip) fl.openTooltip();
-                });
-              }
+                // Set default symbology (hollow/fill)
+                updateLayerStyle(key, hollowStates[group]);
 
-              if (key === "p1" || key === "m1") {
-                map.fitBounds(layer.getBounds(), { padding: [50, 50] });
-              }
+                // Ensure labels are NOT shown initially
+                if (!noLabelLayers.includes(key)) {
+                  layer.eachLayer((fl) => {
+                    if (fl.getTooltip()) {
+                      fl._labelVisible = false;
+                      fl.closeTooltip(); // Hide the tooltip if it was opened by Leaflet by default
+                    }
+                  });
+                }
 
-              if (key === "p16" || key === "m17") {
-                const imageInfo = layerImages[key];
-                const imageControl = L.control({ position: "bottomleft" });
-                imageControl.onAdd = function () {
-                  const div = L.DomUtil.create("div", "image-control");
-                  div.innerHTML = `
-                  <a href="${imageInfo.link}" target="_blank" style="display:block; margin-bottom:5px;">
-                    <img src="${imageInfo.src}" style="width:100%;max-width:300px;height:auto;border:2px solid #00008B;" alt="Layer Image">
-                  </a>`;
+                // Zoom if project boundary is loaded
+                if (key === "p1" || key === "m1") {
+                  map.fitBounds(layer.getBounds(), { padding: [50, 50] });
+                }
 
-                  return div;
-                };
-                imageControl.addTo(map);
-                currentImageControls[key] = imageControl;
-              }
+                // Add chart image if it's a landuse layer
+                if (key === "p16" || key === "m17") {
+                  const imageInfo = layerImages[key];
+                  const imageControl = L.control({ position: "bottomleft" });
+                  imageControl.onAdd = function () {
+                    const div = L.DomUtil.create("div", "image-control");
+                    div.innerHTML = `
+                      <a href="${imageInfo.link}" target="_blank" style="display:block; margin-bottom:5px;">
+                        <img src="${imageInfo.src}" style="width:100%;max-width:300px;height:auto;border:2px solid #00008B;" alt="Layer Image">
+                      </a>`;
+                    return div;
+                  };
+                  imageControl.addTo(map);
+                  currentImageControls[key] = imageControl;
+                }
 
-              updateLegend(key);
+                updateLegend(key);
+              
+
             } else {
               map.removeLayer(layer);
               if (currentImageControls[key]) {
@@ -443,15 +521,26 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  // Initialize Hollow buttons
+  // Initialize Hollow buttons - Only affects polygons
   document.querySelectorAll('.hollow-toggle-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-      isHollow = !isHollow;
-      this.textContent = isHollow ? 'Fill' : 'Hollow';
-      this.dataset.state = isHollow ? 'hollow' : 'fill';
+      const group = this.dataset.group; // 'pmc' or 'mulkhow'
+      hollowStates[group] = !hollowStates[group];
+      this.textContent = hollowStates[group] ? 'Fill' : 'Hollow';
+      this.dataset.state = hollowStates[group] ? 'hollow' : 'fill';
+      
+      // Update all visible layers in the group (only polygons will be affected)
+      Object.entries(layers).forEach(([key, layer]) => {
+        const isGroupMatch = 
+          (group === "pmc" && key.startsWith("p")) || 
+          (group === "mulkhow" && key.startsWith("m"));
+        
+        if (isGroupMatch && map.hasLayer(layer)) {
+          updateLayerStyle(key, hollowStates[group]);
+        }
+      });
       
       if (lastSelectedLayer) {
-        updateLayerStyle(lastSelectedLayer, isHollow);
         updateLegend(lastSelectedLayer);
       }
     });
@@ -465,7 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle map clicks
+  // Handle map clicks - Only reset selected feature, maintain label states
   map.on("click", (e) => {
     const target = e.originalEvent.target;
     if (
@@ -474,20 +563,51 @@ document.addEventListener("DOMContentLoaded", () => {
       !target.closest(".leaflet-tooltip") &&
       !target.closest(".leaflet-control")
     ) {
-      Object.values(layers).forEach(l => {
-        if (map.hasLayer(l)) {
-          l.resetStyle();
+      // Only reset the selected feature, keep other features and labels as they were
+      if (lastSelectedFeature) {
+        const layerKey = lastSelectedLayer;
+        const group = layerKey.startsWith('p') ? 'pmc' : 'mulkhow';
+        const isHollow = hollowStates[group];
+        const featureType = lastSelectedFeature.feature.geometry.type;
+        
+        // Store label visibility before resetting
+        const wasLabelVisible = lastSelectedFeature._labelVisible;
+        
+        if (['Polygon', 'MultiPolygon'].includes(featureType)) {
+          lastSelectedFeature.setStyle({
+            color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[layerKey]]),
+            weight: 2,
+            fillColor: isHollow ? 'transparent' : getColorByValue(lastSelectedFeature.feature.properties[symbologyField[layerKey]]),
+            fillOpacity: isHollow ? 0 : 0.3
+          });
+        } else if (featureType === 'Point' || featureType === 'MultiPoint') {
+          lastSelectedFeature.setStyle({
+            fillColor: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[layerKey]]),
+            color: "#000", // Black outline
+            weight: 2, // Thicker outline
+            fillOpacity: 0.8,
+            radius: 6
+          });
+        } else { // For lines
+          lastSelectedFeature.setStyle({
+            color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[layerKey]]),
+            weight: 2,
+            fillOpacity: 0
+          });
         }
-      });
+        
+        // Restore label visibility if it was visible before resetting
+        if (wasLabelVisible && lastSelectedFeature.getTooltip()) {
+          lastSelectedFeature.openTooltip();
+        }
+        
+        lastSelectedFeature = null;
+      }
       map.closePopup();
-      Object.keys(currentImageControls).forEach(key => {
-        map.removeControl(currentImageControls[key]);
-      });
-      currentImageControls = {};
     }
   });
 
-  // Label toggle functionality
+  // Label toggle functionality - Skip noLabelLayers
   document.querySelectorAll('.label-toggle-btn').forEach(button => {
     button.addEventListener('click', () => {
       const group = button.dataset.group;
@@ -496,17 +616,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
       button.dataset.state = showLabels ? "on" : "off";
       button.textContent = showLabels ? "Hide Labels" : "Labels";
+      labelVisibilityStates[group] = showLabels;
 
       Object.entries(layers).forEach(([key, layer]) => {
         const isGroupMatch =
           (group === "pmc" && key.startsWith("p")) ||
           (group === "mulkhow" && key.startsWith("m"));
 
-        if (isGroupMatch && map.hasLayer(layer)) {
+        // Skip the layers that shouldn't have permanent labels
+        if (isGroupMatch && map.hasLayer(layer) && !noLabelLayers.includes(key)) {
           layer.eachLayer((fl) => {
-            const tooltip = fl.getTooltip();
-            if (tooltip) {
-              showLabels ? fl.openTooltip() : fl.closeTooltip();
+            if (fl.getTooltip()) {
+              if (showLabels) {
+                fl.openTooltip();
+                fl._labelVisible = true;
+              } else {
+                fl.closeTooltip();
+                fl._labelVisible = false;
+              }
             }
           });
         }

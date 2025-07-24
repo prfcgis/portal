@@ -7,6 +7,13 @@
   --accent-color: #f83600;
 }
 
+/* Hide label toggle for specific layers */
+.layer-controls li[data-layer="p9"] .label-toggle-btn,
+.layer-controls li[data-layer="p16"] .label-toggle-btn,
+.layer-controls li[data-layer="m17"] .label-toggle-btn {
+  display: none;
+}
+
 body, h1, label {
   margin: 0;
   padding: 0;
