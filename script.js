@@ -55,12 +55,16 @@ document.addEventListener("DOMContentLoaded", () => {
   currentBaseLayer.addTo(map);
 
   const layers = {};
+  let lastSelectedLayer = null;
+  let isHollow = false;
+  const landuseLayers = ['p16', 'm17'];
   
   const symbologyField = {
     p1: "Name", p2: "Name", p3: "Name", p4: "ROW",
     p5: "Label", p6: "Name", p7: "Name", p8: "Name",
     p9: "Name", p10: "Tehsil", p11: "Mauza", p12: "Label",
     p13: "Type", p14: "Name", p15: "Name", p16: "Category",
+
     m1: "Name", m2: "Name", m3: "Name", m4: "ROW",
     m5: "Label", m6: "NAME", m7: "Name", m8: "Name",
     m9: "Name", m10: "Name", m11: "Name", m12: "Label",
@@ -71,8 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const labelField = {
     p1: "Name", p2: "Name", p3: "Label", p4: "ROW",
     p5: "Label", p6: "Outlet", p7: "Outlet", p8: "Outlet",
-    p9: "Outlet", p10: "Name", p11: "Khasra_No", p12: "Label",
+    p9: "FFID", p10: "Name", p11: "Khasra_No", p12: "Label",
     p13: "Name", p14: "Name", p15: "Name", p16: "Landuse",
+
     m1: "Name", m2: "Name", m3: "Label", m4: "ROW",
     m5: "Label", m6: "Outlet", m7: "Outlet", m8: "Name",
     m9: "Outlet", m10: "Outlet", m11: "Name", m12: "Label",
@@ -100,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     p14: `${baseURL1}Drain_P.geojson`,
     p15: `${baseURL1}Villages_P.geojson`,
     p16: `${baseURL1}Landuse_P.geojson`,
+
     m1: `${baseURL2}Project_boundary_M.geojson`,
     m2: `${baseURL2}IDS_M.geojson`,
     m3: `${baseURL2}RD_M.geojson`,
@@ -185,6 +191,126 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const hybridLabelsControl = new HybridLabelsControl();
 
+  // Function to update layer style (hollow/fill)
+  function updateLayerStyle(layerKey, hollow = false) {
+    if (!layers[layerKey]) return;
+    
+    const symField = symbologyField[layerKey];
+    layers[layerKey].eachLayer(layer => {
+      if (layer.feature.geometry.type === 'Point' || 
+          layer.feature.geometry.type === 'MultiPoint') {
+        layer.setStyle({
+          fillColor: hollow ? 'transparent' : getColorByValue(layer.feature.properties[symField]),
+          color: '#000',
+          weight: 1,
+          fillOpacity: hollow ? 0 : 0.8,
+          radius: 6
+        });
+      } else {
+        layer.setStyle({
+          color: getColorByValue(layer.feature.properties[symField]),
+          weight: 2,
+          fillColor: hollow ? 'transparent' : getColorByValue(layer.feature.properties[symField]),
+          fillOpacity: hollow ? 0 : 0.3
+        });
+      }
+    });
+  }
+
+  // Enhanced Legend Function
+  function updateLegend(selectedKey = null) {
+    const legendContent = document.getElementById("legend-content");
+    const legendPopup = document.getElementById("legend-popup");
+
+    legendContent.innerHTML = "";
+
+    if (!selectedKey || !layers[selectedKey] || !map.hasLayer(layers[selectedKey])) {
+      legendPopup.classList.add("hidden");
+      return;
+    }
+
+    const symField = symbologyField[selectedKey];
+    const layer = layers[selectedKey];
+    const legendMap = new Map();
+    const isLanduse = landuseLayers.includes(selectedKey);
+    const sampleFeature = layer.getLayers()[0]?.feature;
+    const geomType = sampleFeature?.geometry?.type;
+
+    layer.eachLayer((fl) => {
+      const props = fl.feature.properties;
+      const value = props[symField];
+      const color = getColorByValue(value);
+
+      let metric = 0;
+      try {
+        if (geomType === "LineString" || geomType === "MultiLineString") {
+          const length = turf.length(fl.feature, { units: "kilometers" });
+          metric = parseFloat(length.toFixed(2));
+        } 
+        else if (isLanduse && (geomType === "Polygon" || geomType === "MultiPolygon")) {
+          const area = turf.area(fl.feature) * 0.000247105; // Convert to acres
+          metric = parseFloat(area.toFixed(2));
+        }
+        else {
+          metric = 1; // For points/polygons (count)
+        }
+      } catch (e) {
+        console.error("Error calculating metric:", e);
+        metric = 0;
+      }
+
+      if (!legendMap.has(value)) {
+        legendMap.set(value, { color: color, total: metric });
+      } else {
+        legendMap.get(value).total += metric;
+      }
+    });
+
+    if (legendMap.size === 0) {
+      legendPopup.classList.add("hidden");
+      return;
+    }
+
+    legendPopup.classList.remove("hidden");
+
+    // Create table header based on layer type
+    let fieldName = "Count";
+    let valueSuffix = "";
+    if (geomType === "LineString" || geomType === "MultiLineString") {
+      fieldName = "Length";
+      valueSuffix = " km";
+    } else if (isLanduse) {
+      fieldName = "Area";
+      valueSuffix = " acres";
+    }
+
+    // Add header row
+    const headerRow = document.createElement("tr");
+    headerRow.innerHTML = `
+      <th>Class</th>
+      <th>${fieldName}</th>
+    `;
+    legendContent.appendChild(headerRow);
+
+    // Add data rows
+    for (let [label, info] of legendMap.entries()) {
+      const row = document.createElement("tr");
+      
+      let displayValue;
+      if (valueSuffix) {
+        displayValue = `${parseFloat(info.total).toFixed(2)}${valueSuffix}`;
+      } else {
+        displayValue = Math.round(info.total);
+      }
+
+      row.innerHTML = `
+        <td><span class="legend-color-box" style="background:${info.color}"></span> ${label}</td>
+        <td>${displayValue}</td>
+      `;
+      legendContent.appendChild(row);
+    }
+  }
+
   // Load and configure all layers
   Object.entries(layerFiles).forEach(([key, url]) => {
     fetch(url)
@@ -269,6 +395,8 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (checkbox.checked) {
               layer.addTo(map);
+              lastSelectedLayer = key;
+              updateLayerStyle(key, isHollow);
 
               if (labelToggle && labelToggle.dataset.state === "on") {
                 layer.eachLayer((fl) => {
@@ -290,6 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <a href="${imageInfo.link}" target="_blank" style="display:block; margin-bottom:5px;">
                     <img src="${imageInfo.src}" style="width:100%;max-width:300px;height:auto;border:2px solid #00008B;" alt="Layer Image">
                   </a>`;
+
                   return div;
                 };
                 imageControl.addTo(map);
@@ -312,6 +441,20 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       });
+  });
+
+  // Initialize Hollow buttons
+  document.querySelectorAll('.hollow-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      isHollow = !isHollow;
+      this.textContent = isHollow ? 'Fill' : 'Hollow';
+      this.dataset.state = isHollow ? 'hollow' : 'fill';
+      
+      if (lastSelectedLayer) {
+        updateLayerStyle(lastSelectedLayer, isHollow);
+        updateLegend(lastSelectedLayer);
+      }
+    });
   });
 
   // Handle popup close button clicks
@@ -433,66 +576,7 @@ document.addEventListener("DOMContentLoaded", () => {
     drawnItems.addLayer(event.layer);
   });
 
-  // Legend functionality
-  function updateLegend(selectedKey = null) {
-    const legendContent = document.getElementById("legend-content");
-    const legendPopup = document.getElementById("legend-popup");
-
-    legendContent.innerHTML = "";
-
-    if (!selectedKey || !layers[selectedKey] || !map.hasLayer(layers[selectedKey])) {
-      legendPopup.classList.add("hidden");
-      return;
-    }
-
-    const symField = symbologyField[selectedKey];
-    const layer = layers[selectedKey];
-    const legendMap = new Map();
-
-    layer.eachLayer((fl) => {
-      const props = fl.feature.properties;
-      const value = props[symField];
-      const color = getColorByValue(value);
-
-      let metric = 0;
-      const geomType = fl.feature.geometry.type;
-
-      try {
-        if (geomType === "LineString" || geomType === "MultiLineString") {
-          const length = turf.length(fl.feature, { units: "kilometers" });
-          metric = parseFloat(length.toFixed(2));
-        } else {
-          metric = 1;
-        }
-      } catch (e) {
-        metric = 0;
-      }
-
-      if (!legendMap.has(value)) {
-        legendMap.set(value, { color: color, total: metric });
-      } else {
-        legendMap.get(value).total += metric;
-      }
-    });
-
-    if (legendMap.size === 0) {
-      legendPopup.classList.add("hidden");
-      return;
-    }
-
-    legendPopup.classList.remove("hidden");
-
-    for (let [label, info] of legendMap.entries()) {
-      const row = document.createElement("tr");
-      const displayValue = Number.isInteger(info.total) ? info.total : `${parseFloat(info.total).toFixed(2)} km`;
-      row.innerHTML = `
-        <td><span class="legend-color-box" style="background:${info.color}"></span> ${label}</td>
-        <td>${displayValue}</td>
-      `;
-      legendContent.appendChild(row);
-    }
-  }
-
+  // Legend close button
   document.getElementById("legend-close").addEventListener("click", () => {
     document.getElementById("legend-popup").classList.add("hidden");
   });

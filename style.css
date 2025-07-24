@@ -445,6 +445,41 @@ body, h1, label {
   border-radius: 4px;
 }
 
+
+/* Hollow/Fill Toggle Button */
+.hollow-toggle-btn {
+  background-color: #fc06df;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  margin: 6px 5px 6px 0;
+}
+
+.hollow-toggle-btn:hover {
+  background-color: #0df940;
+}
+
+/* Legend Improvements */
+.legend-table th:nth-child(2),
+.legend-table td:nth-child(2) {
+  width: 30%;
+  text-align: right;
+}
+
+.legend-table .length-cell::after {
+  content: " km";
+}
+
+.legend-table .area-cell::after {
+  content: " acres";
+}
+
+
+
 /* RESPONSIVE STYLES */
 @media (max-width: 1200px) {
   .dashboard-title {
@@ -581,3 +616,6 @@ body, h1, label {
     font-size: 11px;
   }
 }
+
+
+
