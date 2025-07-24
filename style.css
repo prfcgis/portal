@@ -1,130 +1,29 @@
-
-.leaflet-interactive:focus {
-  outline: none !important;
+/* BASE STYLES */
+:root {
+  --header-height: 100px;
+  --sidebar-width: 280px;
+  --primary-color: #1e3a8a;
+  --secondary-color: #0539b4;
+  --accent-color: #f83600;
 }
-
-
-/* Hide Leaflet’s default close (X) button */
-.leaflet-popup-close-button {
-  display: none !important;
-}
-
-/* Popup container & tip width fix */
-.leaflet-popup-content-wrapper,
-.leaflet-popup-tip-container {
-  min-width: 260px;
-}
-
-/* Leaflet popup container */
-.leaflet-popup-content-wrapper {
-  border: 2px solid blue;
-  border-radius: 5px;
-  padding: 0;
-}
-
-/* Main Leaflet popup content */
-.leaflet-popup-content {
-  margin: 0;
-  padding: 0;
-  width: 260px !important;
-  max-width: 260px !important;
-  overflow: hidden;
-}
-
-/* Custom popup container inside Leaflet */
-.custom-popup {
-  padding: 0 !important;
-  margin: 0;
-  width: 260px;
-  max-height: 250px;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-}
-
-/* Popup header with title and close button */
-.popup-header {
-  background-color: #0539b4;
-  color: white;
-  padding: 6px 10px;
-  font-size: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #ccc;
-  height: 30px;
-  box-sizing: border-box;
-  width: 100%;
-}
-
-/* Close (✖) button inside popup header */
-.popup-close-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  margin: 0;
-}
-
-/* Scrollable popup body with attribute table */
-.popup-body {
-  padding: 10px;
-  padding-top: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  box-sizing: border-box;
-}
-
-/* Attribute table styling */
-.popup-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  table-layout: fixed;
-}
-
-.popup-table th,
-.popup-table td {
-  border: 1px solid #ddd;
-  padding: 6px 8px;
-  text-align: left;
-  word-wrap: break-word;
-}
-
-/* Sticky header for table */
-.popup-table th {
-  background-color: #f1f1f1;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-
-
-
-
-
-
 
 body, h1, label {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
-:root {
-  --header-height: 100px;
-}
-
+/* HEADER STYLES */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #1e3a8a;
+  background-color: var(--primary-color);
   padding: 0 30px;
   height: var(--header-height);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 .logo {
@@ -132,6 +31,7 @@ body, h1, label {
   background-color: white;
   padding: 5px;
   border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
 .left-logo { width: 100px; margin-left: -20px; }
@@ -146,6 +46,7 @@ body, h1, label {
 .dashboard-title {
   font-size: 1.8rem;
   animation: colorCycle 60s infinite ease-in-out;
+  transition: all 0.3s ease;
 }
 
 @keyframes colorCycle {
@@ -160,83 +61,130 @@ body, h1, label {
   height: 80px;
   border-radius: 12px;
   object-fit: cover;
+  transition: all 0.3s ease;
 }
 
+/* MAIN CONTENT LAYOUT */
 .main-container {
   display: flex;
   height: calc(100vh - var(--header-height));
+  transition: all 0.3s ease;
 }
 
+/* LEFT PANEL STYLES - ORIGINAL DESIGN PRESERVED */
 .left-panel {
   background-color: #edf3f4;
   padding: 10px;
-  width: 280px;
+  width: var(--sidebar-width);
   overflow-y: auto;
   border: 3px solid #4501ff;
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
-.tab-panel .tab-header {
-  background-color: #1e3a8a;
+.tab-panel {
+  margin-bottom: 15px;
+}
+
+.tab-header {
+  background-color: var(--primary-color);
   color: white;
-  padding: 10px;
+  padding: 10px 15px;
   cursor: pointer;
   font-weight: bold;
-  border: 2px solid #f83600;
+  border: 2px solid var(--accent-color);
   margin-bottom: 5px;
   border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
 }
 
-.tab-panel .tab-content {
+.tab-header:hover {
+  background-color: #1d4ed8;
+}
+
+.tab-content {
   display: none;
-  padding: 10px;
+  padding: 12px;
   background: white;
   margin-bottom: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-family: 'Times New Roman', Times, serif;
   font-size: 15.5px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
 }
 
-.tab-panel .tab-content label {
+.tab-content.open {
+  display: block;
+}
+
+.tab-content label {
   display: block;
   margin-bottom: 8px;
+  padding: 5px 0;
+  cursor: pointer;
+  color: #333;
 }
 
-.tab-panel .tab-content input {
-  margin-right: 5px;
+.tab-content input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color);
 }
 
-.tab-panel .tab-content.open {
-  display: block;
+.arrow {
+  margin-left: 10px;
+  transition: transform 0.2s ease;
+  font-size: 14px;
 }
 
 .map-container {
   flex-grow: 1;
   position: relative;
   background-color: #e5e7eb;
+  transition: all 0.3s ease;
 }
 
-.tab-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* Align label and arrow */
-  background-color: #1e3a8a;
+/* BUTTON STYLES */
+.zoom-btn {
+  display: inline-block;
+  margin: 6px 0;
+  padding: 6px 12px;
+  font-size: 12px;
+  background-color: #2563eb;
   color: white;
-  padding: 10px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
-  border: 2px solid #f83600;
-  margin-bottom: 5px;
-  border-radius: 8px; /* Rounded corners for tab header */
+  transition: background-color 0.3s ease;
 }
 
-.arrow {
-  margin-left: 10px;
-  transition: transform 0.2s ease-in-out;
+.zoom-btn:hover {
+  background-color: #30d81d;
 }
 
+.label-toggle-btn {
+  background-color: #1f2937;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
 
+.label-toggle-btn:hover {
+  background-color: #0df940;
+}
+
+/* LEGEND STYLES */
 .legend-popup {
   position: absolute;
   bottom: 20px;
@@ -253,14 +201,11 @@ body, h1, label {
   flex-direction: column;
 }
 
-
-
-
 .legend-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #0539b4;
+  background-color: var(--secondary-color);
   color: white;
   padding: 6px 10px;
   font-weight: bold;
@@ -271,22 +216,18 @@ body, h1, label {
   z-index: 3;
 }
 
-
 .legend-close {
   background: none;
   border: none;
   font-size: 16px;
   cursor: pointer;
+  color: white;
 }
 
-.legend-content {
-  margin-top: 10px;
+.legend-scroll {
+  overflow-y: auto;
+  max-height: 160px;
 }
-
-.hidden {
-  display: none;
-}
-
 
 .legend-table {
   width: 100%;
@@ -320,49 +261,137 @@ body, h1, label {
   border: 1px solid #333;
 }
 
+.hidden {
+  display: none;
+}
 
-.legend-scroll {
+/* SIDEBAR TOGGLE BUTTON */
+.sidebar-toggle-btn {
+  display: none;
+  position: fixed;
+  top: calc(var(--header-height) + 10px);
+  left: 10px;
+  z-index: 1000;
+  padding: 8px 12px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #1d4ed8;
+}
+
+/* POPUP STYLES */
+.leaflet-interactive:focus {
+  outline: none !important;
+}
+
+.leaflet-popup-close-button {
+  display: none !important;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip-container {
+  min-width: 260px;
+}
+
+.leaflet-popup-content-wrapper {
+  border: 2px solid blue;
+  border-radius: 5px;
+  padding: 0;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+  width: 260px !important;
+  max-width: 260px !important;
+  overflow: hidden;
+}
+
+.custom-popup {
+  padding: 0 !important;
+  margin: 0;
+  width: 260px;
+  max-height: 250px;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+.popup-header {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 6px 10px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #ccc;
+  height: 30px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.popup-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+}
+
+.popup-body {
+  padding: 10px;
+  padding-top: 0;
+  max-height: 200px;
   overflow-y: auto;
-  max-height: 160px; /* leave space for header */
+  box-sizing: border-box;
 }
 
-
-
-.zoom-btn {
-  display: inline-block;
-  margin: 6px 0;
-  padding: 6px 12px;
+.popup-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 12px;
-  background-color: #2563eb; /* blue-600 */
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  table-layout: fixed;
 }
 
-.zoom-btn:hover {
-  background-color: #30d81d; /* blue-700 */
+.popup-table th,
+.popup-table td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  text-align: left;
+  word-wrap: break-word;
 }
 
-.label-toggle-btn {
-  background-color: #1f2937;
-  color: white;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+.popup-table th {
+  background-color: #f1f1f1;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* LABEL TOOLTIPS */
+.label-tooltip {
+  font-family: Arial, sans-serif;
   font-size: 12px;
-  transition: background-color 0.3s ease;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: rgba(30, 58, 138, 0.9);
+  border: 1px solid #fff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.4);
 }
-.label-toggle-btn:hover {
-  background-color: #0df940;
-}
 
-
-
-/* hybrid map toglle button*/
-
+/* HYBRID TOGGLE */
 .toggle-switch {
   position: relative;
   display: inline-flex;
@@ -376,8 +405,8 @@ body, h1, label {
 }
 
 .toggle-switch .slider {
-  width: clamp(36px, 5vw, 40px);
-  height: clamp(20px, 3vw, 22px);
+  width: 36px;
+  height: 20px;
   background-color: #ccc;
   border-radius: 12px;
   position: relative;
@@ -387,8 +416,8 @@ body, h1, label {
 .toggle-switch .slider:before {
   content: "";
   position: absolute;
-  width: clamp(16px, 2.5vw, 18px);
-  height: clamp(16px, 2.5vw, 18px);
+  width: 16px;
+  height: 16px;
   background-color: #fff;
   border-radius: 50%;
   top: 2px;
@@ -398,57 +427,157 @@ body, h1, label {
 }
 
 .toggle-switch input:checked + .slider {
-  background-color: #1e3a8a;
+  background-color: var(--primary-color);
 }
 
 .toggle-switch input:checked + .slider:before {
-  transform: translateX(clamp(16px, 2.5vw, 18px));
-}
-
-.toggle-switch input:disabled + .slider {
-  background-color: #e0e0e0;
-  cursor: not-allowed;
-}
-
-.toggle-switch input:disabled + .slider:before {
-  background-color: #bbb;
-}
-
-.toggle-switch input:disabled ~ .toggle-label {
-  color: #999;
-  cursor: not-allowed;
+  transform: translateX(16px);
 }
 
 .toggle-switch .toggle-label {
   font-family: Arial, sans-serif;
-  font-size: clamp(12px, 2.5vw, 12px);
-  color: #fafbfd; /* Set text color same as outline for consistency */
-  font-weight: bold; /* Make text bold */
-  background-color: #1e3a8a; /* Remove background */
-  border: 2px solid #fbfbfc; /* Add outline (border) color */
-  padding: 4px 8px; /* Optional: add spacing inside label */
-  border-radius: 4px; /* Optional: rounded corners */
-}
-
-
-
-.custom-marker {
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
-/* Style for feature label tooltips */
-.label-tooltip {
-  font-family: Arial, sans-serif;
   font-size: 12px;
+  color: #fafbfd;
   font-weight: bold;
-  color: #ffffff;
-  background-color: rgba(30, 58, 138, 0.9); /* dark blue with transparency */
-  border: 1px solid #fff;
-  border-radius: 4px;
+  background-color: var(--primary-color);
+  border: 2px solid #fbfbfc;
   padding: 4px 8px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.4);
+  border-radius: 4px;
+}
+
+/* RESPONSIVE STYLES */
+@media (max-width: 1200px) {
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+  .background-image {
+    width: 500px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 992px) {
+  .dashboard-header {
+    padding: 0 15px;
+    height: 80px;
+  }
+  .logo {
+    width: 60px;
+  }
+  .left-logo, .right-logo {
+    margin: 0;
+  }
+  .dashboard-title {
+    font-size: 1.2rem;
+  }
+  .background-image {
+    width: 350px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    height: auto;
+    padding: 10px;
+  }
+  .title-container {
+    flex-direction: column;
+    gap: 5px;
+    order: -1;
+    margin-bottom: 10px;
+  }
+  .background-image {
+    width: 100%;
+    max-width: 400px;
+    height: 40px;
+  }
+  .logo {
+    width: 50px;
+  }
+  
+  .main-container {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .left-panel {
+    width: 100%;
+    max-height: 60vh;
+    overflow-y: auto;
+    border-right: none;
+    border-bottom: 3px solid #4501ff;
+  }
+  
+  .left-panel.hidden {
+    max-height: 0;
+    padding: 0;
+    border: none;
+    overflow: hidden;
+  }
+  
+  .map-container {
+    height: 60vh;
+    min-height: 400px;
+  }
+  
+  .legend-popup {
+    bottom: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+    max-width: 300px;
+  }
+  
+  .tab-header {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .tab-content {
+    font-size: 14.5px;
+    padding: 10px;
+  }
+  
+  .sidebar-toggle-btn {
+    display: block;
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-title {
+    font-size: 1rem;
+    text-align: center;
+  }
+  
+  .tab-header {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .tab-content {
+    font-size: 14px;
+    padding: 8px;
+  }
+  
+  .tab-content input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+  }
+  
+  .zoom-btn, .label-toggle-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+  
+  .legend-popup {
+    max-height: 150px;
+  }
+  
+  .legend-table th, 
+  .legend-table td {
+    padding: 3px 5px;
+    font-size: 11px;
+  }
 }

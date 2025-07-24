@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PRFC GIS PORTAL</title>
 
   <!-- Leaflet Core -->
@@ -12,7 +12,6 @@
   <!-- Leaflet Draw -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
   <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-
 
   <!-- Line Length Calculation -->
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
@@ -50,71 +49,62 @@
           <label><input type="radio" name="basemap" value="topographic" /> Esri Topographic</label>
           <label><input type="radio" name="basemap" value="natgeo" /> National Geographic Style</label>
           <label><input type="radio" name="basemap" value="hybrid"> Hybrid</label>
-
         </div>
 
         <!-- PMC Layers -->
-      <div class="tab-header" data-target="pmc">
-         PMC Layers<span class="arrow">▶️</span>
+        <div class="tab-header" data-target="pmc">
+          PMC Layers<span class="arrow">▶️</span>
+        </div>
+        <div class="tab-content" id="pmc">
+          <button id="zoom-to-pmc" class="zoom-btn">Zoom to PMC</button>
+          <button class="label-toggle-btn" data-group="pmc" data-state="off">Labels</button>
+          <label><input type="checkbox" value="p1" /> Project Area</label>
+          <label><input type="checkbox" value="p2" /> IDS</label>
+          <label><input type="checkbox" value="p3" /> RD of IDS &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color:rgb(11, 11, 11)7;"></i></label>
+          <label><input type="checkbox" value="p4" /> R.O.W of IDS</label>
+          <label><input type="checkbox" value="p5" /> Dimensions of R.O.W</label>
+          <label><input type="checkbox" value="p6" /> Outlets  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #01b3ff;"></i></label>
+          <label><input type="checkbox" value="p7" /> Watercourse</label>
+          <label><input type="checkbox" value="p8" /> Chaks</label> 
+          <label><input type="checkbox" value="p9" /> Farmers Record</label>
+          <label><input type="checkbox" value="p10" /> Mauza's Boundary</label>
+          <label><input type="checkbox" value="p11" /> Digitized Khasras</label>
+          <label><input type="checkbox" value="p12" /> Construction Camps  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff3401;"></i></label>
+          <label><input type="checkbox" value="p13" /> Env. Monitoring  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #01ff27;"></i></label>
+          <label><input type="checkbox" value="p14" /> Drain Channel</label>
+          <label><input type="checkbox" value="p15" /> Villages  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff8001;"></i></label>
+          <label><input type="checkbox" value="p16" /> Landuse</label>
+        </div>
+
+        <!-- Mulkhow Layers -->
+        <div class="tab-header" data-target="mulkhow">
+          Mulkhow Layers<span class="arrow">▶️</span> 
+        </div>
+        <div class="tab-content" id="mulkhow">
+          <button id="zoom-to-mulkhow" class="zoom-btn">Zoom to Mulkhow</button>
+          <button class="label-toggle-btn" data-group="mulkhow" data-state="off">Labels</button>
+          <label><input type="checkbox" value="m1" /> Project Area</label>
+          <label><input type="checkbox" value="m2" /> IDS</label>
+          <label><input type="checkbox" value="m3" /> RD of IDS  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color:rgb(11, 11, 11)7;"></i></label>
+          <label><input type="checkbox" value="m4" /> R.O.W of IDS</label>
+          <label><input type="checkbox" value="m5" /> Dimensions of R.O.W</label>
+          <label><input type="checkbox" value="m6" /> Outlets &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #01b3ff;"></i></label>
+          <label><input type="checkbox" value="m7" /> Mulkhow Chaks</label>
+          <label><input type="checkbox" value="m8" /> Qaqlasht Chaks</label> 
+          <label><input type="checkbox" value="m9" /> Splitted Chaks</label>
+          <label><input type="checkbox" value="m10" /> Mountain</label>
+          <label><input type="checkbox" value="m11" /> Materials & Dumping &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff01a2;"></i></label>
+          <label><input type="checkbox" value="m12" /> Construction Camps &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff3401;"></i></label>
+          <label><input type="checkbox" value="m13" /> Env. Monitoring &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #01ff27;"></i></label>
+          <label><input type="checkbox" value="m14" /> Soil Sampling &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ef320274;"></i></label>
+          <label><input type="checkbox" value="m15" /> FCC / Drain</label>
+          <label><input type="checkbox" value="m16" /> Villages &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff8001;"></i></label>
+          <label><input type="checkbox" value="m17" /> Landuse</label>
+          <label><input type="checkbox" value="m18" /> Road Netwrok</label>
+          <label><input type="checkbox" value="m19" /> Forestation Land</label>
+          <label><input type="checkbox" value="m20" /> Gazing Land</label>
+        </div>
       </div>
-      <div class="tab-content" id="pmc">
-
-
-        <!-- Inside PMC Panel -->
-        <button id="zoom-to-pmc" class="zoom-btn">Zoom to PMC</button>
-        <button class="label-toggle-btn" data-group="pmc" data-state="off">Labels</button>
-        <label><input type="checkbox" value="p1" /> Project Area</label>
-        <label><input type="checkbox" value="p2" /> IDS</label>
-        <label><input type="checkbox" value="p3" /> RD of IDS &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color:rgb(11, 11, 11)7;"></i></label>
-        <label><input type="checkbox" value="p4" /> R.O.W of IDS</label>
-        <label><input type="checkbox" value="p5" /> Dimensions of R.O.W</label>
-        <label><input type="checkbox" value="p6" /> Outlets  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #01b3ff;"></i></label>
-        <label><input type="checkbox" value="p7" /> Watercourse</label>
-        <label><input type="checkbox" value="p8" /> Chaks</label> 
-        <label><input type="checkbox" value="p9" /> Farmers Record</label>
-        <label><input type="checkbox" value="p10" /> Mauza's Boundary</label>
-        <label><input type="checkbox" value="p11" /> Digitized Khasras</label>
-        <label><input type="checkbox" value="p12" /> Construction Camps  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff3401;"></i></label>
-        <label><input type="checkbox" value="p13" /> Env. Monitoring  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #01ff27;"></i></label>
-        <label><input type="checkbox" value="p14" /> Drain Channel</label>
-        <label><input type="checkbox" value="p15" /> Villages  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff8001;"></i></label>
-        <label><input type="checkbox" value="p16" /> Landuse</label>
-
-      </div>
-
-      <!-- Mulkhow Layers -->
-      <div class="tab-header" data-target="mulkhow">
-        Mulkhow Layers<span class="arrow">▶️</span> 
-      </div>
-      <div class="tab-content" id="mulkhow">
-        
-        
-        <button id="zoom-to-mulkhow" class="zoom-btn">Zoom to Mulkhow</button>
-        <button class="label-toggle-btn" data-group="mulkhow" data-state="off">Labels</button>
-        <label><input type="checkbox" value="m1" /> Project Area</label>
-        <label><input type="checkbox" value="m2" /> IDS</label>
-        <label><input type="checkbox" value="m3" /> RD of IDS  &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color:rgb(11, 11, 11)7;"></i></label>
-        <label><input type="checkbox" value="m4" /> R.O.W of IDS</label>
-        <label><input type="checkbox" value="m5" /> Dimensions of R.O.W</label>
-        <label><input type="checkbox" value="m6" /> Outlets &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #01b3ff;"></i></label>
-        <label><input type="checkbox" value="m7" /> Mulkhow Chaks</label>
-        <label><input type="checkbox" value="m8" /> Qaqlasht Chaks</label> 
-        <label><input type="checkbox" value="m9" /> Splitted Chaks</label>
-        <label><input type="checkbox" value="m10" /> Mountain</label>
-        <label><input type="checkbox" value="m11" /> Materials & Dumping &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff01a2;"></i></label>
-        <label><input type="checkbox" value="m12" /> Construction Camps &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff3401;"></i></label>
-        <label><input type="checkbox" value="m13" /> Env. Monitoring &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #01ff27;"></i></label>
-        <label><input type="checkbox" value="m14" /> Soil Sampling &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ef320274;"></i></label>
-        <label><input type="checkbox" value="m15" /> FCC / Drain</label>
-        <label><input type="checkbox" value="m16" /> Villages &nbsp;&nbsp;<i class="fa-solid fa-location-dot" style="color: #ff8001;"></i></label>
-        <label><input type="checkbox" value="m17" /> Landuse</label>
-        <label><input type="checkbox" value="m18" /> Road Netwrok</label>
-        <label><input type="checkbox" value="m19" /> Forestation Land</label>
-        <label><input type="checkbox" value="m20" /> Gazing Land</label>
-
-
-      </div>
-
     </aside>
 
     <!-- MAP CONTAINER -->
@@ -122,23 +112,22 @@
   </div>
 
   <div id="legend-popup" class="legend-popup hidden">
-  <div class="legend-header">
-    <strong>Legend</strong>
-    <button id="legend-close" class="legend-close">❌</button>
+    <div class="legend-header">
+      <strong>Legend</strong>
+      <button id="legend-close" class="legend-close">❌</button>
+    </div>
+    <div class="legend-scroll">
+      <table class="legend-table">
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Count / Length</th>
+          </tr>
+        </thead>
+        <tbody id="legend-content"></tbody>
+      </table>
+    </div>
   </div>
-  <div class="legend-scroll">
-  <table class="legend-table">
-    <thead>
-      <tr>
-        <th>Class</th>
-        <th>Count / Length</th>
-      </tr>
-    </thead>
-    <tbody id="legend-content"></tbody>
-  </table>
-</div>
-
-
 
   <!-- Custom Script -->
   <script src="script.js" defer></script>

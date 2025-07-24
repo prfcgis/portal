@@ -1,9 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize map
   const map = L.map("map", {
     center: [34.03119430046332, 72.4117004519285],
     zoom: 10
   });
 
+  // Define basemaps
   const basemaps = {
     map: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors"
@@ -20,12 +22,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     ),
     topographic: L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
-    {
-      attribution: "© Esri, HERE, Garmin, FAO, NOAA, USGS, EPA, NPS"
-    }
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: "© Esri, HERE, Garmin, FAO, NOAA, USGS, EPA, NPS"
+      }
     ),
-
     natgeo: L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}",
       {
@@ -56,31 +57,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const layers = {};
   
   const symbologyField = {
-  p1: "Name", p2: "Name", p3: "Name", p4: "ROW",
-  p5: "Label", p6: "Name", p7: "Name", p8: "Name",
-  p9: "Name", p10: "Tehsil", p11: "Mauza", p12: "Label",
-  p13: "Type", p14: "Name", p15: "Name",p16:"Category",
-
-  m1: "Name", m2: "Name", m3: "Name", m4: "ROW",
-  m5: "Label", m6: "NAME", m7: "Name", m8: "Name",
-  m9: "Name", m10: "Name", m11: "Name", m12: "Label",
-  m13: "Type", m14: "Type", m15: "Name", m16: "Name",
-  m17: "Category", m18: "category", m19: "Type", m20: "Type"
+    p1: "Name", p2: "Name", p3: "Name", p4: "ROW",
+    p5: "Label", p6: "Name", p7: "Name", p8: "Name",
+    p9: "Name", p10: "Tehsil", p11: "Mauza", p12: "Label",
+    p13: "Type", p14: "Name", p15: "Name", p16: "Category",
+    m1: "Name", m2: "Name", m3: "Name", m4: "ROW",
+    m5: "Label", m6: "NAME", m7: "Name", m8: "Name",
+    m9: "Name", m10: "Name", m11: "Name", m12: "Label",
+    m13: "Type", m14: "Type", m15: "Name", m16: "Name",
+    m17: "Category", m18: "category", m19: "Type", m20: "Type"
   };
 
   const labelField = {
-  p1: "Name", p2: "Name", p3: "Label", p4: "ROW",
-  p5: "Label", p6: "Outlet", p7: "Outlet", p8: "Outlet",
-  p9: "Outlet", p10: "Name", p11: "Khasra_No", p12: "Label",
-  p13: "Name", p14: "Name",  p15: "Name",p16:"Landuse",
-
-  m1: "Name", m2: "Name", m3: "Label", m4: "ROW",
-  m5: "Label", m6: "Outlet", m7: "Outlet", m8: "Name",
-  m9: "Outlet", m10: "Outlet", m11: "Name", m12: "Label",
-  m13: "Name", m14: "Name", m15: "Name", m16: "Name",
-  m17: "Landuse", m18: "category", m19: "Type", m20: "Name"
+    p1: "Name", p2: "Name", p3: "Label", p4: "ROW",
+    p5: "Label", p6: "Outlet", p7: "Outlet", p8: "Outlet",
+    p9: "Outlet", p10: "Name", p11: "Khasra_No", p12: "Label",
+    p13: "Name", p14: "Name", p15: "Name", p16: "Landuse",
+    m1: "Name", m2: "Name", m3: "Label", m4: "ROW",
+    m5: "Label", m6: "Outlet", m7: "Outlet", m8: "Name",
+    m9: "Outlet", m10: "Outlet", m11: "Name", m12: "Label",
+    m13: "Name", m14: "Name", m15: "Name", m16: "Name",
+    m17: "Landuse", m18: "category", m19: "Type", m20: "Name"
   };
-
 
   const baseURL1 = "https://raw.githubusercontent.com/prfcgis/portal/refs/heads/main/SHP_PMC/";
   const baseURL2 = "https://raw.githubusercontent.com/prfcgis/portal/refs/heads/main/SHP_Mulkhow/";
@@ -102,7 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
     p14: `${baseURL1}Drain_P.geojson`,
     p15: `${baseURL1}Villages_P.geojson`,
     p16: `${baseURL1}Landuse_P.geojson`,
-
     m1: `${baseURL2}Project_boundary_M.geojson`,
     m2: `${baseURL2}IDS_M.geojson`,
     m3: `${baseURL2}RD_M.geojson`,
@@ -166,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
         </label>
       `;
       L.DomEvent.disableClickPropagation(div);
-      // Attach toggle event listener when control is added
       const toggle = div.querySelector("#hybrid-labels-toggle");
       if (toggle) {
         toggle.checked = isHybridLabelsOn;
@@ -184,14 +180,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
       return div;
-    },
-    onRemove: function () {
-      // noop
     }
   });
 
   const hybridLabelsControl = new HybridLabelsControl();
 
+  // Load and configure all layers
   Object.entries(layerFiles).forEach(([key, url]) => {
     fetch(url)
       .then((res) => res.json())
@@ -239,7 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             featureLayer.on("click", () => {
-              // Reset styles of all layers
               Object.values(layers).forEach(l => {
                 if (map.hasLayer(l)) {
                   l.resetStyle();
@@ -261,13 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
               });
 
               featureLayer.bringToFront();
-
-              try {
-                featureLayer.bindPopup(content, { autoPan: true, className: "custom-popup" }).openPopup();
-                console.log("Popup opened for feature");
-              } catch (error) {
-                console.error("Error opening popup:", error);
-              }
+              featureLayer.bindPopup(content, { autoPan: true, className: "custom-popup" }).openPopup();
             });
           }
         });
@@ -278,8 +265,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (checkbox) {
           checkbox.addEventListener("change", () => {
             const group = key.startsWith("m") ? "mulkhow" : "pmc";
-          const labelToggle = document.querySelector(`.label-toggle-btn[data-group="${group}"]`);
-          
+            const labelToggle = document.querySelector(`.label-toggle-btn[data-group="${group}"]`);
+            
             if (checkbox.checked) {
               layer.addTo(map);
 
@@ -303,7 +290,6 @@ document.addEventListener("DOMContentLoaded", () => {
                   <a href="${imageInfo.link}" target="_blank" style="display:block; margin-bottom:5px;">
                     <img src="${imageInfo.src}" style="width:100%;max-width:300px;height:auto;border:2px solid #00008B;" alt="Layer Image">
                   </a>`;
-
                   return div;
                 };
                 imageControl.addTo(map);
@@ -328,25 +314,16 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  // Use flag to ignore map click right after feature click
-  let ignoreMapClick = false;
-
-  // Delegate popup close button clicks to map container
+  // Handle popup close button clicks
   document.getElementById('map').addEventListener('click', (e) => {
     if (e.target.classList.contains('popup-close-btn')) {
-      // Close the currently open popup using Leaflet API
       map.closePopup();
       e.stopPropagation();
     }
   });
 
+  // Handle map clicks
   map.on("click", (e) => {
-    if (ignoreMapClick) {
-      // Ignore this click because it just followed a feature popup open
-      ignoreMapClick = false;
-      return;
-    }
-
     const target = e.originalEvent.target;
     if (
       !target.closest(".leaflet-interactive") &&
@@ -367,14 +344,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Label toggle functionality
   document.querySelectorAll('.label-toggle-btn').forEach(button => {
     button.addEventListener('click', () => {
       const group = button.dataset.group;
       const isOn = button.dataset.state === "on";
-      const newState = isOn ? "off" : "on";
       const showLabels = !isOn;
 
-      button.dataset.state = newState;
+      button.dataset.state = showLabels ? "on" : "off";
       button.textContent = showLabels ? "Hide Labels" : "Labels";
 
       Object.entries(layers).forEach(([key, layer]) => {
@@ -394,9 +371,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Basemap switcher
   document.querySelectorAll('input[name="basemap"]').forEach((input) => {
     input.addEventListener("change", function () {
-      // Remove current basemap and associated layers
       if (currentBaseLayer) {
         map.removeLayer(currentBaseLayer);
         if (currentBaseLayer === basemaps.hybrid.imagery) {
@@ -405,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
           map.removeControl(hybridLabelsControl);
         }
       }
-      // Add new basemap
+      
       if (this.value === "hybrid") {
         currentBaseLayer = basemaps.hybrid.imagery;
         currentBaseLayer.addTo(map);
@@ -422,15 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Initially add the toggle control and layers only if hybrid basemap is selected
-  if (currentBaseLayer === basemaps.hybrid.imagery) {
-    map.addControl(hybridLabelsControl);
-    if (isHybridLabelsOn) {
-      basemaps.hybrid.transportation.addTo(map);
-      basemaps.hybrid.labels.addTo(map);
-    }
-  }
-
+  // Tab functionality
   document.querySelectorAll(".tab-header").forEach((tab) => {
     tab.addEventListener("click", () => {
       const target = document.getElementById(tab.getAttribute("data-target"));
@@ -441,6 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Drawing tools
   const drawnItems = new L.FeatureGroup().addTo(map);
   const drawControl = new L.Control.Draw({
     position: "topleft",
@@ -463,6 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
     drawnItems.addLayer(event.layer);
   });
 
+  // Legend functionality
   function updateLegend(selectedKey = null) {
     const legendContent = document.getElementById("legend-content");
     const legendPopup = document.getElementById("legend-popup");
@@ -526,6 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("legend-popup").classList.add("hidden");
   });
 
+  // Zoom buttons
   document.getElementById("zoom-to-pmc").addEventListener("click", () => {
     map.setView([34.03119430046332, 72.4117004519285], 11);
   });
@@ -534,49 +506,63 @@ document.addEventListener("DOMContentLoaded", () => {
     map.setView([36.28143319384586, 72.20742463946648], 12);
   });
 
+  // Responsive features
+  function checkMobile() {
+    return window.matchMedia("(max-width: 768px)").matches;
+  }
+
+  function setupSidebarToggle() {
+    const sidebarToggle = document.querySelector(".sidebar-toggle-btn");
+    const leftPanel = document.querySelector(".left-panel");
+    
+    sidebarToggle.addEventListener("click", () => {
+      leftPanel.classList.toggle("hidden");
+      map.invalidateSize();
+      sidebarToggle.textContent = leftPanel.classList.contains("hidden") ? "☰ Show Panel" : "✕ Hide Panel";
+    });
+    
+    map.on('click', function() {
+      if (checkMobile() && !leftPanel.classList.contains("hidden")) {
+        leftPanel.classList.add("hidden");
+        sidebarToggle.textContent = "☰ Show Panel";
+        map.invalidateSize();
+      }
+    });
+  }
+
+  function initResponsiveFeatures() {
+    setupSidebarToggle();
+    
+    if (checkMobile()) {
+      document.querySelectorAll('.tab-header').forEach(header => {
+        if (!header.getAttribute('data-target')) return;
+        
+        const target = document.getElementById(header.getAttribute('data-target'));
+        if (target) {
+          target.classList.remove('open');
+          header.querySelector('.arrow').textContent = "▶️";
+        }
+      });
+    }
+    
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        map.invalidateSize();
+        if (checkMobile()) {
+          document.querySelector('.sidebar-toggle-btn').style.top = 
+            `${document.querySelector('.dashboard-header').offsetHeight + 10}px`;
+        }
+      }, 250);
+    });
+  }
+
+  // Initialize everything
   window.addEventListener("resize", () => {
     map.invalidateSize();
   });
 
   map.invalidateSize();
-
-  const sidebarToggle = document.createElement("button");
-  sidebarToggle.className = "sidebar-toggle-btn";
-  sidebarToggle.textContent = "☰";
-  sidebarToggle.style.cssText = `
-    display: none;
-    position: fixed;
-    top: calc(var(--header-height) + 10px);
-    left: 10px;
-    z-index: 1000;
-    padding: 8px 12px;
-    background-color: #1e3a8a;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  `;
-  document.body.appendChild(sidebarToggle);
-
-  sidebarToggle.addEventListener("click", () => {
-    const leftPanel = document.querySelector(".left-panel");
-    leftPanel.classList.toggle("hidden");
-    map.invalidateSize();
-  });
-
-  const mediaQuery = window.matchMedia("(max-width: 768px)");
-  function handleMediaQuery(mq) {
-    const sidebarToggle = document.querySelector(".sidebar-toggle-btn");
-    const leftPanel = document.querySelector(".left-panel");
-    if (mq.matches) {
-      sidebarToggle.style.display = "block";
-      leftPanel.classList.add("hidden");
-    } else {
-      sidebarToggle.style.display = "none";
-      leftPanel.classList.remove("hidden");
-    }
-    map.invalidateSize();
-  }
-  mediaQuery.addEventListener("change", handleMediaQuery);
-  handleMediaQuery(mediaQuery);
+  initResponsiveFeatures();
 });
