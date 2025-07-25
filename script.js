@@ -392,30 +392,43 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           `;
 
-          // 🔷 Label logic - Completely separated behaviors
+          // 🔷 Label logic
           if (labelAttr && props[labelAttr]) {
             const labelText = props[labelAttr];
 
-            // Permanent label setup (always bound but visibility controlled by toggle)
-            if (!noLabelLayers.includes(key)) {
+            if (noLabelLayers.includes(key)) {
+              // 👈 Hover-only labels (not toggle-controlled)
               featureLayer.bindTooltip(labelText, {
-                permanent: true,  // Always permanent
+                permanent: false,
+                direction: "top",
+                className: "label-tooltip"
+              });
+
+              featureLayer.on("mouseover", function () {
+                this.openTooltip();
+              });
+
+              featureLayer.on("mouseout", function () {
+                this.closeTooltip();
+              });
+            } else {
+              // 👈 Toggle-controlled permanent labels
+              featureLayer.bindTooltip(labelText, {
+                permanent: true,
                 direction: "left",
                 className: "label-tooltip"
               });
 
-              // Set initial visibility based on toggle state
               if (labelVisible) {
                 featureLayer.openTooltip();
               } else {
                 featureLayer.closeTooltip();
-                
-                // Only setup hover behavior when labels are OFF
-                featureLayer.on("mouseover", function() {
+
+                featureLayer.on("mouseover", function () {
                   this.openTooltip();
                 });
-                
-                featureLayer.on("mouseout", function() {
+
+                featureLayer.on("mouseout", function () {
                   this.closeTooltip();
                 });
               }
@@ -424,7 +437,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // 🔷 Click behavior
           featureLayer.on("click", () => {
-            // Restore style for last selected
             if (lastSelectedFeature) {
               const lastKey = lastSelectedLayer;
               const lastGroup = lastKey.startsWith('p') ? 'pmc' : 'mulkhow';
@@ -455,7 +467,6 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             }
 
-            // Apply highlight style
             const isHollow = hollowStates[group];
             const selectedStyle = {
               color: "blue",
@@ -480,13 +491,14 @@ document.addEventListener("DOMContentLoaded", () => {
             featureLayer.bindPopup(content, {
               autoPan: true,
               className: "custom-popup",
-              offset: L.point(-100, -100) // Adjusts popup to top-right relative to the clicked point
+              offset: L.point(-100, -100)
             }).openPopup();
 
             lastSelectedLayer = key;
             lastSelectedFeature = featureLayer;
           });
         }
+
 
 
         });
