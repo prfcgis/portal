@@ -1,0 +1,30 @@
+{
+"type": "FeatureCollection",
+"name": "sensitive_receptors_m",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Boplasht Mosque, Zaini Mulkhow", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.198264800000061, 36.298879400000033, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Dokut Mosque, Zaini, Mulkhow", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.196265500000038, 36.300754900000072, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Eid Gah", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.227454400000056, 36.30138, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Gasoline Station, Kuragh", "Category": "Gas Station" }, "geometry": { "type": "Point", "coordinates": [ 72.162789700000076, 36.219539400000031, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Government Primary School Saht, Mulkhow Chitral", "Category": "Education" }, "geometry": { "type": "Point", "coordinates": [ 72.229966, 36.321163700000056, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Govt Girls Middle School, Saht, Mulkhow Chitral", "Category": "Education" }, "geometry": { "type": "Point", "coordinates": [ 72.229938900000036, 36.321047400000054, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Govt Middle School Saht bala", "Category": "Education" }, "geometry": { "type": "Point", "coordinates": [ 72.237806500000033, 36.324898200000064, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Govt Middle School Shunu", "Category": "Education" }, "geometry": { "type": "Point", "coordinates": [ 72.186969500000032, 36.296418, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Govt Primary School Bumbagh", "Category": "Education" }, "geometry": { "type": "Point", "coordinates": [ 72.172531400000082, 36.235329, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "HBMS Mulkhow Upper Chitral", "Category": "Education" }, "geometry": { "type": "Point", "coordinates": [ 72.211759800000038, 36.296063200000049, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Honshiaq Mosque warijun", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.216569600000071, 36.300450100000035, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Ihtisham Ul haq", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.206582300000036, 36.293984400000056, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Istaboon Mosque, zaini Mulkhow", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.186382700000081, 36.307762800000035, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Jama Masjid Khotekan, Mulkhow", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.190242400000045, 36.292853300000047, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Jamia Masjid-umer Gumbad", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.228808700000059, 36.308913200000063, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Madina School and College Warijun", "Category": "Education" }, "geometry": { "type": "Point", "coordinates": [ 72.216868400000067, 36.300797200000034, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Masjid Quba Duduhone", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.225630600000045, 36.307100100000071, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Masjid Shunu Mulkhow", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.188053900000057, 36.295232600000077, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Rural Health Centre Mulkhow", "Category": "Hospital" }, "geometry": { "type": "Point", "coordinates": [ 72.22136590000008, 36.306459600000039, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Tableeghi Markaz Headquarters Mulkhow", "Category": "Education" }, "geometry": { "type": "Point", "coordinates": [ 72.219590100000062, 36.307188500000052, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Tameer e Seerat Model College Warijun Mulkhow Chitral", "Category": "Education" }, "geometry": { "type": "Point", "coordinates": [ 72.21927450000004, 36.305803, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Unduxandur mulkhow upper chitral KPK Pakistan", "Category": "Religious" }, "geometry": { "type": "Point", "coordinates": [ 72.20681710000008, 36.293769800000064, 0.0 ] } },
+{ "type": "Feature", "properties": { "OID_": 0, "Name": "Attique Filling Station", "Category": "Gas Station" }, "geometry": { "type": "Point", "coordinates": [ 72.22746630000006, 36.305781300000035, 0.0 ] } }
+]
+}
