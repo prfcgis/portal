@@ -5,6 +5,7 @@
   --primary-color: #1e3a8a;
   --secondary-color: #0539b4;
   --accent-color: #f83600;
+  --mobile-breakpoint: 768px;
 }
 
 /* Hide label toggle for specific layers */
@@ -13,6 +14,8 @@
 .layer-controls li[data-layer="m17"] .label-toggle-btn {
   display: none;
 }
+
+
 
 body, h1, label {
   margin: 0;
@@ -54,6 +57,7 @@ body, h1, label {
   font-size: 1.8rem;
   animation: colorCycle 60s infinite ease-in-out;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 @keyframes colorCycle {
@@ -78,7 +82,7 @@ body, h1, label {
   transition: all 0.3s ease;
 }
 
-/* LEFT PANEL STYLES - ORIGINAL DESIGN PRESERVED */
+/* LEFT PANEL STYLES */
 .left-panel {
   background-color: #edf3f4;
   padding: 10px;
@@ -87,6 +91,21 @@ body, h1, label {
   border: 3px solid #4501ff;
   box-sizing: border-box;
   transition: all 0.3s ease;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) #edf3f4;
+}
+
+.left-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.left-panel::-webkit-scrollbar-track {
+  background: #edf3f4;
+}
+
+.left-panel::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 4px;
 }
 
 .tab-panel {
@@ -257,6 +276,15 @@ body, h1, label {
   padding: 4px 6px;
   text-align: left;
   font-size: 13px;
+}
+
+.legend-total-row {
+    background-color: #f0f0f0;
+    border-top: 2px solid #333;
+}
+
+.legend-total-row td {
+    font-weight: bold;
 }
 
 .legend-color-box {
@@ -452,7 +480,6 @@ body, h1, label {
   border-radius: 4px;
 }
 
-
 /* Hollow/Fill Toggle Button */
 .hollow-toggle-btn {
   background-color: #fc06df;
@@ -485,56 +512,94 @@ body, h1, label {
   content: " acres";
 }
 
-
-
 /* RESPONSIVE STYLES */
 @media (max-width: 1200px) {
+  :root {
+    --sidebar-width: 240px;
+    --header-height: 90px;
+  }
+  
   .dashboard-title {
     font-size: 1.5rem;
   }
+  
   .background-image {
     width: 500px;
     height: 60px;
   }
+  
+  .tab-header {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .tab-content {
+    font-size: 14.5px;
+    padding: 10px;
+  }
 }
 
 @media (max-width: 992px) {
+  :root {
+    --header-height: 80px;
+  }
+  
   .dashboard-header {
     padding: 0 15px;
-    height: 80px;
   }
+  
   .logo {
     width: 60px;
   }
+  
   .left-logo, .right-logo {
     margin: 0;
   }
+  
   .dashboard-title {
     font-size: 1.2rem;
   }
+  
   .background-image {
     width: 350px;
     height: 50px;
   }
+  
+  .tab-header {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .tab-content {
+    font-size: 14px;
+    padding: 8px;
+  }
 }
 
 @media (max-width: 768px) {
+  :root {
+    --header-height: auto;
+  }
+  
   .dashboard-header {
     flex-direction: column;
-    height: auto;
-    padding: 10px;
+    padding: 15px 10px;
+    gap: 10px;
   }
+  
   .title-container {
-    flex-direction: column;
-    gap: 5px;
     order: -1;
     margin-bottom: 10px;
+    flex-direction: column;
+    gap: 8px;
   }
+  
   .background-image {
     width: 100%;
     max-width: 400px;
     height: 40px;
   }
+  
   .logo {
     width: 50px;
   }
@@ -542,14 +607,16 @@ body, h1, label {
   .main-container {
     flex-direction: column;
     height: auto;
+    min-height: 100vh;
   }
   
   .left-panel {
     width: 100%;
-    max-height: 60vh;
-    overflow-y: auto;
+    max-height: 40vh;
     border-right: none;
     border-bottom: 3px solid #4501ff;
+    position: relative;
+    z-index: 10;
   }
   
   .left-panel.hidden {
@@ -571,18 +638,21 @@ body, h1, label {
     max-width: 300px;
   }
   
-  .tab-header {
-    padding: 10px;
-    font-size: 14px;
-  }
-  
-  .tab-content {
-    font-size: 14.5px;
-    padding: 10px;
-  }
-  
   .sidebar-toggle-btn {
     display: block;
+  }
+  
+  /* Stack logos on mobile */
+  .logo-stack {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+  }
+  
+  .left-logo, .right-logo {
+    position: static;
+    margin: 0;
   }
 }
 
@@ -593,12 +663,12 @@ body, h1, label {
   }
   
   .tab-header {
-    padding: 8px 10px;
-    font-size: 13px;
+    padding: 8px;
+    font-size: 12px;
   }
   
   .tab-content {
-    font-size: 14px;
+    font-size: 13px;
     padding: 8px;
   }
   
@@ -608,9 +678,12 @@ body, h1, label {
     margin-right: 6px;
   }
   
-  .zoom-btn, .label-toggle-btn {
+  .zoom-btn, 
+  .label-toggle-btn,
+  .hollow-toggle-btn {
     padding: 5px 8px;
     font-size: 11px;
+    margin: 4px 3px;
   }
   
   .legend-popup {
@@ -621,6 +694,54 @@ body, h1, label {
   .legend-table td {
     padding: 3px 5px;
     font-size: 11px;
+  }
+  
+  .popup-table th,
+  .popup-table td {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+  
+  .custom-popup {
+    width: 240px;
+  }
+  
+  .leaflet-popup-content {
+    width: 240px !important;
+    max-width: 240px !important;
+  }
+}
+
+/* Very small devices (phones, 400px and down) */
+@media (max-width: 400px) {
+  .dashboard-title {
+    font-size: 0.9rem;
+  }
+  
+  .background-image {
+    height: 30px;
+  }
+  
+  .tab-header {
+    font-size: 11px;
+  }
+  
+  .tab-content {
+    font-size: 12px;
+  }
+  
+  .legend-popup {
+    width: calc(100% - 20px);
+    max-width: none;
+  }
+  
+  .custom-popup {
+    width: 220px;
+  }
+  
+  .leaflet-popup-content {
+    width: 220px !important;
+    max-width: 220px !important;
   }
 }
 

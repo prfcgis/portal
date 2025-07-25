@@ -66,26 +66,26 @@ document.addEventListener("DOMContentLoaded", () => {
     p1: "Name", p2: "Name", p3: "Name", p4: "ROW",
     p5: "Label", p6: "Name", p7: "Name", p8: "Name",
     p9: "Name", p10: "Tehsil", p11: "Mauza", p12: "Label",
-    p13: "Type", p14: "Name", p15: "Name", p16: "Category",
+    p13: "Type", p14: "Name", p15: "Name", p16: "Category",p17: "Category",
 
     m1: "Name", m2: "Name", m3: "Name", m4: "ROW",
     m5: "Label", m6: "NAME", m7: "Name", m8: "Name",
     m9: "Name", m10: "Name", m11: "Name", m12: "Label",
     m13: "Type", m14: "Type", m15: "Name", m16: "Name",
-    m17: "Category", m18: "category", m19: "Type", m20: "Type"
+    m17: "Category", m18: "category", m19: "Type", m20: "Type" , m21: "Category",
   };
 
   const labelField = {
     p1: "Name", p2: "Name", p3: "Label", p4: "ROW",
     p5: "Label", p6: "Outlet", p7: "Outlet", p8: "Outlet",
     p9: "FFID", p10: "Name", p11: "Khasra_No", p12: "Label",
-    p13: "Name", p14: "Name", p15: "Name", p16: "Landuse",
+    p13: "Name", p14: "Name", p15: "Name", p16: "Landuse", p17: "Name",
 
     m1: "Name", m2: "Name", m3: "Label", m4: "ROW",
     m5: "Label", m6: "Outlet", m7: "Outlet", m8: "Name",
     m9: "Outlet", m10: "Outlet", m11: "Name", m12: "Label",
     m13: "Name", m14: "Name", m15: "Name", m16: "Name",
-    m17: "Landuse", m18: "category", m19: "Type", m20: "Name"
+    m17: "Landuse", m18: "category", m19: "Type", m20: "Name", m21: "Name",
   };
 
   const baseURL1 = "https://raw.githubusercontent.com/prfcgis/portal/refs/heads/main/SHP_PMC/";
@@ -108,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     p14: `${baseURL1}Drain_P.geojson`,
     p15: `${baseURL1}Villages_P.geojson`,
     p16: `${baseURL1}Landuse_P.geojson`,
+    p17: `${baseURL1}sensitive_receptors_p.geojson`,
 
     m1: `${baseURL2}Project_boundary_M.geojson`,
     m2: `${baseURL2}IDS_M.geojson`,
@@ -129,6 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     m18: `${baseURL2}Roads_m.geojson`,
     m19: `${baseURL2}forest_M.geojson`,
     m20: `${baseURL2}grazing_land_M.geojson`,
+    m21: `${baseURL2}sensitive_receptors_m.geojson`,
   };
 
   const colorPalette = [
@@ -137,6 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "#3b82f6", "#8b5cf6", "#e11d48", "#14b8a6", "#84cc16",
     "#d97706", "#6b21a8", "#7f1d1d"
   ];
+  
 
   let colorMap = {};
   const getColorByValue = (value) => {
@@ -214,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Enhanced Legend Function
+  // Enhanced Legend Function with Total row using pre-calculated Area field
   function updateLegend(selectedKey = null) {
     const legendContent = document.getElementById("legend-content");
     const legendPopup = document.getElementById("legend-popup");
@@ -222,8 +225,8 @@ document.addEventListener("DOMContentLoaded", () => {
     legendContent.innerHTML = "";
 
     if (!selectedKey || !layers[selectedKey] || !map.hasLayer(layers[selectedKey])) {
-      legendPopup.classList.add("hidden");
-      return;
+        legendPopup.classList.add("hidden");
+        return;
     }
 
     const symField = symbologyField[selectedKey];
@@ -233,39 +236,51 @@ document.addEventListener("DOMContentLoaded", () => {
     const sampleFeature = layer.getLayers()[0]?.feature;
     const geomType = sampleFeature?.geometry?.type;
 
+    let total = 0; // Initialize total counter
+
     layer.eachLayer((fl) => {
-      const props = fl.feature.properties;
-      const value = props[symField];
-      const color = getColorByValue(value);
+        const props = fl.feature.properties;
+        const value = props[symField];
+        const color = getColorByValue(value);
 
-      let metric = 0;
-      try {
-        if (geomType === "LineString" || geomType === "MultiLineString") {
-          const length = turf.length(fl.feature, { units: "kilometers" });
-          metric = parseFloat(length.toFixed(2));
-        } 
-        else if (isLanduse && (geomType === "Polygon" || geomType === "MultiPolygon")) {
-          const area = turf.area(fl.feature) * 0.000247105; // Convert to acres
-          metric = parseFloat(area.toFixed(2));
+        let metric = 0;
+        try {
+            if (geomType === "LineString" || geomType === "MultiLineString") {
+                const length = turf.length(fl.feature, { units: "kilometers" });
+                metric = parseFloat(length.toFixed(2));
+            } 
+            else if (isLanduse && (geomType === "Polygon" || geomType === "MultiPolygon")) {
+                // Use pre-calculated area from "Area" field if available
+                if (props.Area) {
+                    // Extract numeric value from "201 acres" format
+                    const areaMatch = props.Area.match(/(\d+\.?\d*)/);
+                    metric = areaMatch ? parseFloat(areaMatch[1]) : 0;
+                } else {
+                    // Fallback to Turf.js calculation if no Area field
+                    const area = turf.area(fl.feature) * 0.000247105; // Convert to acres
+                    metric = parseFloat(area.toFixed(2));
+                }
+            }
+            else {
+                metric = 1; // For points/polygons (count)
+            }
+        } catch (e) {
+            console.error("Error calculating metric:", e);
+            metric = 0;
         }
-        else {
-          metric = 1; // For points/polygons (count)
-        }
-      } catch (e) {
-        console.error("Error calculating metric:", e);
-        metric = 0;
-      }
 
-      if (!legendMap.has(value)) {
-        legendMap.set(value, { color: color, total: metric });
-      } else {
-        legendMap.get(value).total += metric;
-      }
+        total += metric; // Add to total
+
+        if (!legendMap.has(value)) {
+            legendMap.set(value, { color: color, total: metric });
+        } else {
+            legendMap.get(value).total += metric;
+        }
     });
 
     if (legendMap.size === 0) {
-      legendPopup.classList.add("hidden");
-      return;
+        legendPopup.classList.add("hidden");
+        return;
     }
 
     legendPopup.classList.remove("hidden");
@@ -274,38 +289,55 @@ document.addEventListener("DOMContentLoaded", () => {
     let fieldName = "Count";
     let valueSuffix = "";
     if (geomType === "LineString" || geomType === "MultiLineString") {
-      fieldName = "Length";
-      valueSuffix = " km";
+        fieldName = "Length";
+        valueSuffix = " km";
     } else if (isLanduse) {
-      fieldName = "Area";
-      valueSuffix = " acres";
+        fieldName = "Area";
+        valueSuffix = " acres";
     }
 
     // Add header row
     const headerRow = document.createElement("tr");
     headerRow.innerHTML = `
-      <th>Class</th>
-      <th>${fieldName}</th>
+        <th>Class</th>
+        <th>${fieldName}</th>
     `;
     legendContent.appendChild(headerRow);
 
     // Add data rows
     for (let [label, info] of legendMap.entries()) {
-      const row = document.createElement("tr");
-      
-      let displayValue;
-      if (valueSuffix) {
-        displayValue = `${parseFloat(info.total).toFixed(2)}${valueSuffix}`;
-      } else {
-        displayValue = Math.round(info.total);
-      }
+        const row = document.createElement("tr");
+        
+        let displayValue;
+        if (valueSuffix) {
+            displayValue = `${parseFloat(info.total).toFixed(2)}${valueSuffix}`;
+        } else {
+            displayValue = Math.round(info.total);
+        }
 
-      row.innerHTML = `
-        <td><span class="legend-color-box" style="background:${info.color}"></span> ${label}</td>
-        <td>${displayValue}</td>
-      `;
-      legendContent.appendChild(row);
+        row.innerHTML = `
+            <td><span class="legend-color-box" style="background:${info.color}"></span> ${label}</td>
+            <td>${displayValue}</td>
+        `;
+        legendContent.appendChild(row);
     }
+
+    // Add total row
+    const totalRow = document.createElement("tr");
+    totalRow.className = "legend-total-row";
+    
+    let totalDisplay;
+    if (valueSuffix) {
+        totalDisplay = `${parseFloat(total).toFixed(2)}${valueSuffix}`;
+    } else {
+        totalDisplay = Math.round(total);
+    }
+
+    totalRow.innerHTML = `
+        <td><strong>Total</strong></td>
+        <td><strong>${totalDisplay}</strong></td>
+    `;
+    legendContent.appendChild(totalRow);
   }
 
   // Load and configure all layers
@@ -339,120 +371,124 @@ document.addEventListener("DOMContentLoaded", () => {
               fillOpacity: 0.8
             }),
           onEachFeature: (feature, featureLayer) => {
-            const props = feature.properties;
-            let content = `
-              <div class="popup-header">
-                <strong>Feature Information</strong>
-                <button class="popup-close-btn" title="Close popup">✖</button>
-              </div>
-              <div class="popup-body">
-                <table class="popup-table">
-                  <thead><tr><th>Attribute</th><th>Value</th></tr></thead>
-                  <tbody>
-                    ${Object.entries(props).map(([key, value]) => `<tr><td>${key}</td><td>${value}</td></tr>`).join("")}
-                  </tbody>
-                </table>
-              </div>
-            `;
+          const props = feature.properties;
+          const featureType = feature.geometry.type;
+          const group = key.startsWith('p') ? 'pmc' : 'mulkhow';
+          const labelVisible = labelVisibilityStates[group];
 
-            if (labelAttr && props[labelAttr]) {
-              // For noLabelLayers, only show tooltip on hover
-              if (noLabelLayers.includes(key)) {
-                featureLayer.bindTooltip(props[labelAttr], {
-                  permanent: false,
-                  direction: "left",
-                  className: "label-tooltip",
-                  interactive: true  // Make tooltip interactive so users can click on it
-                });
+          // 🔷 Popup content
+          let content = `
+            <div class="popup-header">
+              <strong>Feature Information</strong>
+              <button class="popup-close-btn" title="Close popup">✖</button>
+            </div>
+            <div class="popup-body">
+              <table class="popup-table">
+                <thead><tr><th>Attribute</th><th>Value</th></tr></thead>
+                <tbody>
+                  ${Object.entries(props).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("")}
+                </tbody>
+              </table>
+            </div>
+          `;
+
+          // 🔷 Label logic - Completely separated behaviors
+          if (labelAttr && props[labelAttr]) {
+            const labelText = props[labelAttr];
+
+            // Permanent label setup (always bound but visibility controlled by toggle)
+            if (!noLabelLayers.includes(key)) {
+              featureLayer.bindTooltip(labelText, {
+                permanent: true,  // Always permanent
+                direction: "left",
+                className: "label-tooltip"
+              });
+
+              // Set initial visibility based on toggle state
+              if (labelVisible) {
+                featureLayer.openTooltip();
               } else {
-                // For other layers, keep the existing label toggle functionality
-                featureLayer.bindTooltip(props[labelAttr], {
-                  permanent: true,
-                  direction: "left",
-                  className: "label-tooltip"
+                featureLayer.closeTooltip();
+                
+                // Only setup hover behavior when labels are OFF
+                featureLayer.on("mouseover", function() {
+                  this.openTooltip();
                 });
                 
-                // Store label visibility state
-                featureLayer._labelVisible = labelVisibilityStates[group];
-                if (labelVisibilityStates[group]) {
-                  featureLayer.openTooltip();
-                }
+                featureLayer.on("mouseout", function() {
+                  this.closeTooltip();
+                });
+              }
+            }
+          }
+
+          // 🔷 Click behavior
+          featureLayer.on("click", () => {
+            // Restore style for last selected
+            if (lastSelectedFeature) {
+              const lastKey = lastSelectedLayer;
+              const lastGroup = lastKey.startsWith('p') ? 'pmc' : 'mulkhow';
+              const lastIsHollow = hollowStates[lastGroup];
+              const lastFeatureType = lastSelectedFeature.feature.geometry.type;
+
+              if (['Polygon', 'MultiPolygon'].includes(lastFeatureType)) {
+                lastSelectedFeature.setStyle({
+                  color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastKey]]),
+                  weight: 2,
+                  fillColor: lastIsHollow ? 'transparent' : getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastKey]]),
+                  fillOpacity: lastIsHollow ? 0 : 0.3
+                });
+              } else if (['Point', 'MultiPoint'].includes(lastFeatureType)) {
+                lastSelectedFeature.setStyle({
+                  fillColor: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastKey]]),
+                  color: "#000",
+                  weight: 2,
+                  fillOpacity: 0.8,
+                  radius: 6
+                });
+              } else {
+                lastSelectedFeature.setStyle({
+                  color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastKey]]),
+                  weight: 2,
+                  fillOpacity: 0
+                });
               }
             }
 
-            featureLayer.on("click", () => {
-              // Reset all previously selected features
-              if (lastSelectedFeature) {
-                const lastLayerKey = lastSelectedLayer;
-                const lastGroup = lastLayerKey.startsWith('p') ? 'pmc' : 'mulkhow';
-                const lastIsHollow = hollowStates[lastGroup];
-                const lastFeatureType = lastSelectedFeature.feature.geometry.type;
-                
-                if (['Polygon', 'MultiPolygon'].includes(lastFeatureType)) {
-                  lastSelectedFeature.setStyle({
-                    color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastLayerKey]]),
-                    weight: 2,
-                    fillColor: lastIsHollow ? 'transparent' : getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastLayerKey]]),
-                    fillOpacity: lastIsHollow ? 0 : 0.3
-                  });
-                } else if (lastFeatureType === 'Point' || lastFeatureType === 'MultiPoint') {
-                  lastSelectedFeature.setStyle({
-                    fillColor: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastLayerKey]]),
-                    color: "#000", // Black outline
-                    weight: 2, // Thicker outline
-                    fillOpacity: 0.8,
-                    radius: 6
-                  });
-                } else { // For lines
-                  lastSelectedFeature.setStyle({
-                    color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[lastLayerKey]]),
-                    weight: 2,
-                    fillOpacity: 0
-                  });
-                }
-                
-                // Restore label visibility if it was visible
-                if (lastSelectedFeature._labelVisible && lastSelectedFeature.getTooltip()) {
-                  lastSelectedFeature.openTooltip();
-                }
-              }
+            // Apply highlight style
+            const isHollow = hollowStates[group];
+            const selectedStyle = {
+              color: "blue",
+              weight: 4
+            };
 
-              const group = key.startsWith('p') ? 'pmc' : 'mulkhow';
-              const isHollow = hollowStates[group];
-              const featureType = feature.geometry.type;
-              const isPolygon = ['Polygon', 'MultiPolygon'].includes(featureType);
+            if (['Polygon', 'MultiPolygon'].includes(featureType)) {
+              selectedStyle.fillColor = isHollow ? "transparent" : "#00FFFF";
+              selectedStyle.fillOpacity = isHollow ? 0 : 0.6;
+            } else if (['Point', 'MultiPoint'].includes(featureType)) {
+              selectedStyle.fillColor = "blue";
+              selectedStyle.color = "#000";
+              selectedStyle.weight = 2;
+              selectedStyle.fillOpacity = 0.8;
+              selectedStyle.radius = 8;
+            } else {
+              selectedStyle.fillOpacity = 0;
+            }
 
-              const selectedStyle = {
-                color: "blue",
-                weight: 4
-              };
+            featureLayer.setStyle(selectedStyle);
+            featureLayer.bringToFront();
+            featureLayer.bindPopup(content, {
+              autoPan: true,
+              className: "custom-popup",
+              offset: L.point(-100, -100) // Adjusts popup to top-right relative to the clicked point
+            }).openPopup();
 
-              if (isPolygon) {
-                selectedStyle.fillColor = isHollow ? "transparent" : "#00FFFF";
-                selectedStyle.fillOpacity = isHollow ? 0 : 0.6;
-              } else if (featureType === 'Point' || featureType === 'MultiPoint') {
-                selectedStyle.fillColor = "blue";
-                selectedStyle.color = "#000"; // Black outline
-                selectedStyle.weight = 2; // Thicker outline
-                selectedStyle.fillOpacity = 0.8;
-                selectedStyle.radius = 8;
-              } else {
-                selectedStyle.fillOpacity = 0;
-              }
+            lastSelectedLayer = key;
+            lastSelectedFeature = featureLayer;
+          });
+        }
 
-              featureLayer.setStyle(selectedStyle);
-              featureLayer.bringToFront();
-              featureLayer.bindPopup(content, { autoPan: true, className: "custom-popup" }).openPopup();
-              
-              // Maintain label visibility
-              if (featureLayer._labelVisible && featureLayer.getTooltip()) {
-                featureLayer.openTooltip();
-              }
-              
-              lastSelectedLayer = key;
-              lastSelectedFeature = featureLayer;
-            });
-          }
+
         });
 
         layers[key] = layer;
@@ -563,16 +599,14 @@ document.addEventListener("DOMContentLoaded", () => {
       !target.closest(".leaflet-tooltip") &&
       !target.closest(".leaflet-control")
     ) {
-      // Only reset the selected feature, keep other features and labels as they were
       if (lastSelectedFeature) {
         const layerKey = lastSelectedLayer;
         const group = layerKey.startsWith('p') ? 'pmc' : 'mulkhow';
         const isHollow = hollowStates[group];
         const featureType = lastSelectedFeature.feature.geometry.type;
-        
-        // Store label visibility before resetting
+
         const wasLabelVisible = lastSelectedFeature._labelVisible;
-        
+
         if (['Polygon', 'MultiPolygon'].includes(featureType)) {
           lastSelectedFeature.setStyle({
             color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[layerKey]]),
@@ -583,31 +617,41 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (featureType === 'Point' || featureType === 'MultiPoint') {
           lastSelectedFeature.setStyle({
             fillColor: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[layerKey]]),
-            color: "#000", // Black outline
-            weight: 2, // Thicker outline
+            color: "#000",
+            weight: 2,
             fillOpacity: 0.8,
             radius: 6
           });
-        } else { // For lines
+        } else {
           lastSelectedFeature.setStyle({
             color: getColorByValue(lastSelectedFeature.feature.properties[symbologyField[layerKey]]),
             weight: 2,
             fillOpacity: 0
           });
         }
-        
-        // Restore label visibility if it was visible before resetting
+
         if (wasLabelVisible && lastSelectedFeature.getTooltip()) {
           lastSelectedFeature.openTooltip();
         }
-        
+
         lastSelectedFeature = null;
       }
+
+      // ✅ Remove chart image controls when clicking empty space
+      ["p16", "m17"].forEach(key => {
+        if (currentImageControls[key]) {
+          map.removeControl(currentImageControls[key]);
+          delete currentImageControls[key];
+        }
+      });
+
       map.closePopup();
     }
   });
 
-  // Label toggle functionality - Skip noLabelLayers
+
+  
+  // Label toggle functionality
   document.querySelectorAll('.label-toggle-btn').forEach(button => {
     button.addEventListener('click', () => {
       const group = button.dataset.group;
@@ -623,16 +667,23 @@ document.addEventListener("DOMContentLoaded", () => {
           (group === "pmc" && key.startsWith("p")) ||
           (group === "mulkhow" && key.startsWith("m"));
 
-        // Skip the layers that shouldn't have permanent labels
         if (isGroupMatch && map.hasLayer(layer) && !noLabelLayers.includes(key)) {
           layer.eachLayer((fl) => {
             if (fl.getTooltip()) {
               if (showLabels) {
+                // Remove hover events when turning labels ON
+                fl.off("mouseover");
+                fl.off("mouseout");
                 fl.openTooltip();
-                fl._labelVisible = true;
               } else {
                 fl.closeTooltip();
-                fl._labelVisible = false;
+                // Add hover events when turning labels OFF
+                fl.on("mouseover", function() {
+                  this.openTooltip();
+                });
+                fl.on("mouseout", function() {
+                  this.closeTooltip();
+                });
               }
             }
           });
@@ -640,7 +691,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   });
-
   // Basemap switcher
   document.querySelectorAll('input[name="basemap"]').forEach((input) => {
     input.addEventListener("change", function () {
