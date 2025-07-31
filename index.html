@@ -336,25 +336,25 @@
   <h2 class="text-3xl font-bold text-slate-800 section-title mb-6">Project Impact – Pehur Main Canal (PMC)</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <div class="stat-card bg-white rounded-xl shadow-lg p-6 text-center border-t-4 border-red-500">
-      <div class="text-5xl font-bold text-red-600 mb-2">57360</div>
+      <div class="text-5xl font-bold text-red-600 mb-2 count-up" data-target="57360">0</div>
       <div class="text-lg font-semibold text-red-700">acres</div>
       <div class="text-red-500 mt-2 font-bold">GCA (Gross Command Area)    </div>
     </div>
 
     <div class="stat-card bg-white rounded-xl shadow-lg p-6 text-center border-t-4 border-green-500">
-      <div class="text-5xl font-bold text-green-600 mb-2">38236</div>
+      <div class="text-5xl font-bold text-green-600 mb-2 count-up" data-target="38236">0</div>
       <div class="text-lg font-semibold text-green-700">acres</div>
       <div class="text-green-500 mt-2 font-bold">CCA 10% FU (Cultural Command Area)  </div>
     </div>
 
     <div class="stat-card bg-white rounded-xl shadow-lg p-6 text-center border-t-4 border-purple-500">
-      <div class="text-5xl font-bold text-purple-600 mb-2">40000+</div>
+      <div class="text-5xl font-bold text-purple-600 mb-2"><span class="count-up" data-target="25000">0</span>+</div>
       <div class="text-lg font-semibold text-purple-700">farmers</div>
       <div class="text-purple-500 mt-2 font-bold">Farmer Records</div>
     </div>
 
     <div class="stat-card bg-white rounded-xl shadow-lg p-6 text-center border-t-4 border-blue-500">
-      <div class="text-5xl font-bold text-blue-600 mb-2">120</div>
+      <div class="text-5xl font-bold text-blue-600 mb-2 count-up" data-target="120">0</div>
       <div class="text-lg font-semibold text-blue-700">km</div>
       <div class="text-blue-500 mt-2 font-bold">PMC IDS Length (km)</div>
     </div>
@@ -366,25 +366,25 @@
 <h2 class="text-3xl font-bold text-slate-800 section-title mb-6">Project Impact – Mulkhow Irrigation System</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
   <div class="stat-card bg-white rounded-xl shadow-lg p-6 text-center border-t-4 border-red-500">
-    <div class="text-5xl font-bold text-red-600 mb-2">26981</div>
+    <div class="text-5xl font-bold text-red-600 mb-2 count-up" data-target="26981">0</div>
     <div class="text-lg font-semibold text-red-700">acres</div>
     <div class="text-red-500 mt-2 font-bold">GCA (Gross Command Area)</div>
   </div>
 
   <div class="stat-card bg-white rounded-xl shadow-lg p-6 text-center border-t-4 border-green-500">
-    <div class="text-5xl font-bold text-green-600 mb-2">15146</div>
+    <div class="text-5xl font-bold text-green-600 mb-2 count-up" data-target="15146">0</div>
     <div class="text-lg font-semibold text-green-700">acres</div>
     <div class="text-green-500 mt-2 font-bold">CCA (Cultural Command Area)</div>
   </div>
 
   <div class="stat-card bg-white rounded-xl shadow-lg p-6 text-center border-t-4 border-purple-500">
-    <div class="text-5xl font-bold text-purple-600 mb-2">25000+</div>
+    <div class="text-5xl font-bold text-purple-600 mb-2"><span class="count-up" data-target="8000">0</span>+</div>
     <div class="text-lg font-semibold text-purple-700">farmers</div>
     <div class="text-purple-500 mt-2 font-bold">Farmer Records</div>
   </div>
 
   <div class="stat-card bg-white rounded-xl shadow-lg p-6 text-center border-t-4 border-blue-500">
-    <div class="text-5xl font-bold text-blue-600 mb-2">72</div>
+    <div class="text-5xl font-bold text-blue-600 mb-2 count-up" data-target="72 ">0</div>
     <div class="text-lg font-semibold text-blue-700">km</div>
     <div class="text-blue-500 mt-2 font-bold">Mulkhow IDS Length (km)  </div>
   </div>
@@ -752,5 +752,41 @@
       });
     });
   </script>
+
+  <script>
+  const counters = document.querySelectorAll(".count-up");
+
+  const animateCount = (counter) => {
+    const target = +counter.getAttribute("data-target");
+    const duration = 1500; // total time in ms
+    const stepTime = Math.max(Math.floor(duration / target), 25); // avoid too fast
+
+    let count = 0;
+    const updateCount = () => {
+      count += Math.ceil(target / (duration / stepTime));
+      if (count >= target) {
+        counter.innerText = target.toLocaleString(); // comma formatted
+      } else {
+        counter.innerText = count.toLocaleString();
+        setTimeout(updateCount, stepTime);
+      }
+    };
+    updateCount();
+  };
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCount(entry.target);
+        observer.unobserve(entry.target); // only once
+      }
+    });
+  }, {
+    threshold: 0.8
+  });
+
+  counters.forEach(counter => observer.observe(counter));
+</script>
+
 </body>
 </html>
